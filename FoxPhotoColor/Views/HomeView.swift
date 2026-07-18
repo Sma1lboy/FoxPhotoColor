@@ -8,6 +8,7 @@ struct HomeView: View {
     @State private var selection: UUID?
     @State private var pickerItem: PhotosPickerItem?
     @State private var showSettings = false
+    @State private var showGrid = false
     @State private var renameTarget: ColorCard?
     @State private var renameText = ""
     @State private var isImporting = false
@@ -124,6 +125,9 @@ struct HomeView: View {
             if env["FPC_EXPORT"] == "1", let card = store.cards.first {
                 export(card)
             }
+            if env["FPC_GRID"] == "1" {
+                showGrid = true
+            }
         }
         .onChange(of: pickerItem) { _, newItem in
             guard let newItem else { return }
@@ -131,6 +135,12 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showSettings) {
             SettingsView()
+        }
+        .sheet(isPresented: $showGrid) {
+            GridOverviewView { card in
+                selection = card.id
+            }
+            .environmentObject(store)
         }
         .sheet(item: $exportTarget) { card in
             if let image = store.fullImage(for: card) ?? store.image(for: card) {
@@ -160,6 +170,13 @@ struct HomeView: View {
                 .font(.system(size: 19, weight: .bold))
                 .foregroundStyle(chromeForeground)
             Spacer()
+            if store.cards.count > 1 {
+                Button {
+                    showGrid = true
+                } label: {
+                    chromeIcon("square.grid.2x2")
+                }
+            }
             PhotosPicker(selection: $pickerItem, matching: .images, photoLibrary: .shared()) {
                 chromeIcon("plus")
             }
@@ -225,6 +242,9 @@ struct HomeView: View {
                     selection = card.id
                     newCard = card
                 }
+            }
+            if newCard != nil {
+                Haptics.success()
             }
             if let created = newCard, let livePhoto {
                 store.attachLivePhoto(livePhoto, to: created)
@@ -298,6 +318,7 @@ struct HomeView: View {
         let fling: Animation = reduceMotion
             ? .easeOut(duration: 0.18)
             : .interpolatingSpring(stiffness: 180, damping: 26, initialVelocity: relativeVelocity)
+        Haptics.medium()
         withAnimation(fling) {
             dragOffset = target
         }
@@ -325,6 +346,7 @@ struct HomeView: View {
                 Text("toast.deleted")
                     .font(.system(size: 14, weight: .medium))
                 Button {
+                    Haptics.success()
                     withAnimation(uiAnimation) {
                         store.undoDelete()
                     }
@@ -349,6 +371,7 @@ struct HomeView: View {
         let derived = PaletteExtractor.rederive(from: swatch, palette: card.palette)
         updated.background = derived.background
         updated.accent = derived.accent
+        Haptics.light()
         withAnimation(uiAnimation) {
             store.update(updated)
         }

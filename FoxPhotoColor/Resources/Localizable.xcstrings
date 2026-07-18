@@ -139,6 +139,12 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "撤销" } }
       }
     },
+    "grid.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All Cards" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "全部色卡" } }
+      }
+    },
     "rename.message" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Name this color card" } },
