@@ -6,6 +6,7 @@ import SwiftUI
 /// (IMG_2549): card at 16% screen height, 15pt side margins, bottom ≈ 72.5%.
 struct MomentCardView: View {
     let card: ColorCard
+    @AppStorage("fpc.use24HourTime") private var use24HourTime = true
     let image: UIImage?
     var onCycleColor: () -> Void = {}
     var onTitleTap: () -> Void = {}
@@ -20,8 +21,11 @@ struct MomentCardView: View {
             let cardWidth = size.width - 30
 
             // The polaroid hugs its content: photo + caption + border padding.
+            // The photo is square on tall canvases but clamps to half the
+            // height on squat export ratios (4:5) so the caption always fits.
             VStack(alignment: .leading, spacing: 0) {
-                photo(width: cardWidth - 28)
+                photo(width: cardWidth - 28,
+                      maxHeight: size.height * 0.52)
                     .padding(14)
                 caption
                     .padding(.horizontal, 26)
@@ -34,13 +38,14 @@ struct MomentCardView: View {
             .shadow(color: .black.opacity(0.12), radius: 18, y: 8)
             .contentShape(Rectangle())
             .onTapGesture { onCycleColor() }
+            .accessibilityHint(Text("card.recolor.a11y"))
             .frame(maxWidth: .infinity)
             .padding(.top, size.height * 0.155)
             .frame(maxHeight: .infinity, alignment: .top)
         }
     }
 
-    private func photo(width: CGFloat) -> some View {
+    private func photo(width: CGFloat, maxHeight: CGFloat) -> some View {
         Group {
             if let image {
                 Image(uiImage: image)
@@ -50,7 +55,7 @@ struct MomentCardView: View {
                 card.background.color
             }
         }
-        .frame(width: width, height: width)
+        .frame(width: width, height: min(width, maxHeight))
         .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
     }
 
@@ -63,6 +68,7 @@ struct MomentCardView: View {
                     .fill(card.accent.color)
             }
             .frame(width: 64, height: 58)
+            .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 3) {
                 Text(card.title.uppercased())
                     .font(.system(size: 15, weight: .heavy))
@@ -70,7 +76,9 @@ struct MomentCardView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
                     .onTapGesture { onTitleTap() }
-                Text(card.timeText.uppercased())
+                    .accessibilityLabel(Text(verbatim: card.title))
+                    .accessibilityHint(Text("card.rename.a11y"))
+                Text(CardTime.text(for: card, use24h: use24HourTime).uppercased())
                     .font(.system(size: 11, weight: .semibold))
                     .tracking(1.2)
                     .padding(.bottom, 3)

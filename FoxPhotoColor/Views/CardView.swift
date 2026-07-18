@@ -22,6 +22,7 @@ struct CanvasBackground: View {
 /// reference app exactly.
 struct CardView: View {
     let card: ColorCard
+    @AppStorage("fpc.use24HourTime") private var use24HourTime = true
     let image: UIImage?
     /// Frozen layout reference. The card's slots are fractions of this, NOT of
     /// a live GeometryReader — during the dismiss drag the safe-area geometry
@@ -89,7 +90,7 @@ struct CardView: View {
                 .minimumScaleFactor(0.5)
                 .multilineTextAlignment(.center)
                 .opacity(0.92)
-            Text(card.timeText.uppercased())
+            Text(CardTime.text(for: card, use24h: use24HourTime).uppercased())
                 .font(.system(size: 9, weight: .semibold))
                 .tracking(2.2)
                 .opacity(0.85)

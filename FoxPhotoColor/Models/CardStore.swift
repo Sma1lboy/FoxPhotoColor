@@ -41,7 +41,8 @@ final class CardStore: ObservableObject {
     func add(image: UIImage,
              originalData: Data? = nil,
              title: String, timeText: String, palette: ExtractedPalette,
-             camera: CameraInfo? = nil) -> ColorCard? {
+             camera: CameraInfo? = nil,
+             captureDate: Date? = nil) -> ColorCard? {
         // Persist the ORIGINAL bytes when available: re-encoding via jpegData
         // strips EXIF and the Apple content identifier that pairs a Live
         // Photo's still with its video — without it, post-relaunch rebuild fails.
@@ -70,7 +71,8 @@ final class CardStore: ObservableObject {
                              background: palette.background,
                              accent: palette.accent,
                              palette: palette.swatches,
-                             camera: camera)
+                             camera: camera,
+                             captureDate: captureDate)
         if let display = Self.downsample(data: data) {
             imageCache.setObject(display, forKey: card.id as NSUUID)
         }
@@ -130,6 +132,22 @@ final class CardStore: ObservableObject {
         if let video = pending.card.videoFileName {
             try? FileManager.default.removeItem(at: directory.appendingPathComponent(video))
         }
+    }
+
+    /// Settings' "Clear all data": every card, photo, and video is deleted
+    /// immediately — the caller is responsible for user confirmation.
+    func removeAll() {
+        purgePendingDelete()
+        for card in cards {
+            imageCache.removeObject(forKey: card.id as NSUUID)
+            livePhotoCache.removeObject(forKey: card.id as NSUUID)
+            try? FileManager.default.removeItem(at: directory.appendingPathComponent(card.imageFileName))
+            if let video = card.videoFileName {
+                try? FileManager.default.removeItem(at: directory.appendingPathComponent(video))
+            }
+        }
+        cards = []
+        persist()
     }
 
     /// Display-sized image (≤1600px long edge) for on-screen cards.
@@ -272,6 +290,8 @@ final class CardStore: ObservableObject {
         var timeText: String
         var bg: RGBAColor
         var accent: RGBAColor
+        /// Card id for the widget's deep link (foxphotocolor://card/<id>).
+        var id: UUID?
     }
 
     /// Latest card → shared container, so the widget can render it.
@@ -282,8 +302,11 @@ final class CardStore: ObservableObject {
         let jsonURL = container.appendingPathComponent("widget-card.json")
         let thumbURL = container.appendingPathComponent("widget-thumb.jpg")
         if let card = cards.first {
-            let snapshot = WidgetSnapshot(title: card.title, timeText: card.timeText,
-                                          bg: card.background, accent: card.accent)
+            let use24h = UserDefaults.standard.object(forKey: "fpc.use24HourTime") as? Bool ?? true
+            let snapshot = WidgetSnapshot(title: card.title,
+                                          timeText: CardTime.text(for: card, use24h: use24h),
+                                          bg: card.background, accent: card.accent,
+                                          id: card.id)
             if let data = try? JSONEncoder().encode(snapshot) {
                 try? data.write(to: jsonURL, options: .atomic)
             }

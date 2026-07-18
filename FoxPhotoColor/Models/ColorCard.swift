@@ -55,11 +55,20 @@ struct RGBAColor: Codable, Equatable, Hashable {
     }
 }
 
+/// A point in unit space (0...1 of the screen) — device-size independent.
+struct NormalizedPoint: Codable, Equatable {
+    var x: Double
+    var y: Double
+}
+
 /// Poster style for the main card browser. Raw values are persisted in
 /// UserDefaults ("fpc.mode") — don't rename cases.
 enum CardMode: String, CaseIterable {
     case classic
     case moment
+    case bubble
+    case spectrum
+    case journal
 }
 
 /// One generated color card: a photo plus its derived palette and caption.
@@ -81,6 +90,13 @@ struct ColorCard: Identifiable, Codable, Equatable {
     /// EXIF camera details for the Moment Card metadata block. Optional so
     /// cards saved before this field decode fine.
     var camera: CameraInfo?
+    /// The photo's capture moment (EXIF, or import time). Lets the displayed
+    /// time re-format when the 12/24h setting changes; older cards without it
+    /// fall back to the stored `timeText`.
+    var captureDate: Date?
+    /// User-dragged Bubble Stamp positions, keyed by palette index, in unit
+    /// space. Missing entries fall back to the deterministic scatter.
+    var bubblePositions: [Int: NormalizedPoint]?
 
     init(id: UUID = UUID(),
          title: String,
@@ -91,7 +107,8 @@ struct ColorCard: Identifiable, Codable, Equatable {
          background: RGBAColor,
          accent: RGBAColor,
          palette: [RGBAColor],
-         camera: CameraInfo? = nil) {
+         camera: CameraInfo? = nil,
+         captureDate: Date? = nil) {
         self.id = id
         self.title = title
         self.timeText = timeText
@@ -102,5 +119,28 @@ struct ColorCard: Identifiable, Codable, Equatable {
         self.accent = accent
         self.palette = palette
         self.camera = camera
+        self.captureDate = captureDate
+    }
+}
+
+/// Card time honoring the 12/24h preference. Formatting happens at render
+/// time so flipping the setting restyles every card that has a captureDate.
+enum CardTime {
+    private static let h24: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "HH:mm"
+        return f
+    }()
+    private static let h12: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "h:mm a"
+        return f
+    }()
+
+    static func text(for card: ColorCard, use24h: Bool) -> String {
+        guard let date = card.captureDate else { return card.timeText }
+        return (use24h ? h24 : h12).string(from: date)
     }
 }

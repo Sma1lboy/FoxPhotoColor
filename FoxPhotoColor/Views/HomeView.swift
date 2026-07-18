@@ -18,10 +18,26 @@ struct HomeView: View {
 
     @AppStorage("fpc.mode") private var modeRaw = CardMode.classic.rawValue
     @AppStorage("fpc.alwaysPoeticTitle") private var alwaysPoeticTitle = false
+    @AppStorage("fpc.livePhotoEnabled") private var livePhotoEnabled = true
 
     private var mode: CardMode { CardMode(rawValue: modeRaw) ?? .classic }
 
-    private enum DragAxis { case undetermined, vertical, horizontal, pan }
+    /// iPad: the poster canvas caps at 560pt and centers, keeping the phone
+    /// proportions instead of stretching. Phones pass through unchanged.
+    private static let maxCanvasWidth: CGFloat = 560
+
+    private var canvasSize: CGSize {
+        let bounds = UIScreen.main.bounds.size
+        return CGSize(width: min(bounds.width, Self.maxCanvasWidth), height: bounds.height)
+    }
+
+    /// Gesture hit-rects computed in canvas space, shifted into screen space.
+    private func inScreenSpace(_ rect: CGRect) -> CGRect {
+        let inset = max(0, (UIScreen.main.bounds.width - canvasSize.width) / 2)
+        return rect.offsetBy(dx: inset, dy: 0)
+    }
+
+    private enum DragAxis { case undetermined, vertical, horizontal, pan, inert }
 
     @ScaledMetric(relativeTo: .headline) private var brandSize: CGFloat = 21
 
@@ -57,14 +73,31 @@ struct HomeView: View {
                     ForEach(store.cards) { card in
                         let isCurrent = (selection ?? store.cards.first?.id) == card.id
                         Group {
-                            if mode == .moment {
+                            switch mode {
+                            case .moment:
                                 MomentCardView(card: card,
                                                image: store.image(for: card),
                                                onCycleColor: { cycleColor(card) },
                                                onTitleTap: { beginRename(card) })
-                            } else {
+                            case .bubble:
+                                BubbleStampView(card: card,
+                                                image: store.image(for: card),
+                                                onTitleTap: { beginRename(card) },
+                                                onMoveBubble: { index, point in
+                                                    moveBubble(card, index: index, to: point)
+                                                })
+                            case .spectrum:
+                                SpectrumWallpaperView(card: card,
+                                                      onTitleTap: { beginRename(card) })
+                            case .journal:
+                                MagicJournalView(card: card,
+                                                 image: store.image(for: card),
+                                                 onCycleColor: { cycleColor(card) },
+                                                 onTitleTap: { beginRename(card) })
+                            case .classic:
                                 CardView(card: card,
                                          image: store.image(for: card),
+                                         screenSize: canvasSize,
                                          panPreview: isCurrent ? panPreview : 0,
                                          onCycleColor: { cycleColor(card) },
                                          loadLivePhoto: { await store.loadLivePhoto(for: card) },
@@ -74,7 +107,10 @@ struct HomeView: View {
                             }
                         }
                             // Reference proportions are fractions of the full
-                            // screen — let each page's geometry span it.
+                            // screen — let each page's geometry span it. On
+                            // iPad the canvas caps at 560pt and centers.
+                            .frame(maxWidth: Self.maxCanvasWidth)
+                            .frame(maxWidth: .infinity)
                             .ignoresSafeArea()
                             .simultaneousGesture(panGesture(for: card))
                             .tag(Optional(card.id))
@@ -159,13 +195,45 @@ struct HomeView: View {
             if let raw = env["FPC_MODE"], CardMode(rawValue: raw) != nil {
                 modeRaw = raw
             }
+            // FPC_CLEAR=1: exercise the real clear-all path headlessly.
+            if env["FPC_CLEAR"] == "1" {
+                store.removeAll()
+            }
+            // FPC_BUBBLE=<card>:<idx>:<x>:<y> — exercise the bubble-move
+            // persistence path (drags can't be simulated headlessly).
+            if let raw = env["FPC_BUBBLE"] {
+                let parts = raw.split(separator: ":")
+                if parts.count == 4, let cardIdx = Int(parts[0]), let idx = Int(parts[1]),
+                   let x = Double(parts[2]), let y = Double(parts[3]),
+                   store.cards.indices.contains(cardIdx) {
+                    selection = store.cards[cardIdx].id
+                    moveBubble(store.cards[cardIdx], index: idx,
+                               to: NormalizedPoint(x: x, y: y))
+                }
+            }
+            backfillMissingTitles()
         }
         .onChange(of: pickerItem) { _, newItem in
             guard let newItem else { return }
             importPhoto(newItem)
         }
+        // Widget deep link: foxphotocolor://card/<uuid> jumps to that card.
+        .onOpenURL { url in
+            if ProcessInfo.processInfo.environment["FPC_DEBUG"] == "1" {
+                print("FPC_DEBUG onOpenURL \(url) host=\(url.host() ?? "nil") last=\(url.lastPathComponent)")
+            }
+            guard url.scheme == "foxphotocolor", url.host() == "card",
+                  let id = UUID(uuidString: url.lastPathComponent),
+                  store.cards.contains(where: { $0.id == id }) else { return }
+            showSettings = false
+            showGrid = false
+            withAnimation(uiAnimation) {
+                selection = id
+            }
+        }
         .sheet(isPresented: $showSettings) {
             SettingsView()
+                .environmentObject(store)
         }
         .sheet(isPresented: $showGrid) {
             GridOverviewView { card in
@@ -266,7 +334,8 @@ struct HomeView: View {
             pickerItem = nil
             // Live Photos carry a paired video; fetch it AFTER the card is
             // visible (it can be an iCloud download) and attach when it lands.
-            if let created,
+            // Gated by the settings toggle — off means stills only.
+            if livePhotoEnabled, let created,
                let livePhoto = try? await item.loadTransferable(type: PHLivePhoto.self) {
                 store.attachLivePhoto(livePhoto, to: created)
             }
@@ -291,7 +360,8 @@ struct HomeView: View {
         withAnimation(uiAnimation) {
             if let card = store.add(image: image, originalData: data,
                                     title: title, timeText: timeText, palette: palette,
-                                    camera: metadata.camera) {
+                                    camera: metadata.camera,
+                                    captureDate: captureDate) {
                 selection = card.id
                 newCard = card
             }
@@ -323,6 +393,32 @@ struct HomeView: View {
         return created
     }
 
+    /// Cards stuck with the default title (AI/geocode were unreachable at
+    /// import) get one more AI attempt per launch — never touches renamed cards.
+    private func backfillMissingTitles() {
+        let defaultTitle = String(localized: "card.default_title")
+        for card in store.cards where card.title == defaultTitle {
+            Task {
+                if let image = store.image(for: card),
+                   let title = await AITitle.poeticTitle(for: image),
+                   var fresh = store.card(id: card.id), fresh.title == defaultTitle {
+                    fresh.title = title
+                    withAnimation(uiAnimation) {
+                        store.update(fresh)
+                    }
+                }
+            }
+        }
+    }
+
+    private func moveBubble(_ card: ColorCard, index: Int, to point: NormalizedPoint) {
+        var updated = card
+        var positions = updated.bubblePositions ?? [:]
+        positions[index] = point
+        updated.bubblePositions = positions
+        store.update(updated)
+    }
+
     private func export(_ card: ColorCard) {
         guard store.fullImage(for: card) ?? store.image(for: card) != nil else {
             store.errorMessage = String(localized: "error.export_failed")
@@ -342,13 +438,19 @@ struct HomeView: View {
                 // cleanly. A vertical drag starting on an overflowing photo
                 // repositions its crop; anywhere else it does nothing.
                 if dragAxis == .undetermined {
-                    if abs(value.translation.width) > abs(value.translation.height) {
+                    // A drag starting on a bubble belongs to the bubble —
+                    // neither dismiss nor paging should fight it.
+                    if mode == .bubble,
+                       BubbleStampView.layout(for: card, in: canvasSize)
+                           .contains(where: { inScreenSpace($0.hitFrame).contains(value.startLocation) }) {
+                        dragAxis = .inert
+                    } else if abs(value.translation.width) > abs(value.translation.height) {
                         dragAxis = .horizontal
                     } else if mode == .classic,
-                              CardView.photoRect(in: UIScreen.main.bounds.size)
+                              inScreenSpace(CardView.photoRect(in: canvasSize))
                                 .contains(value.startLocation),
                               CardView.panOverflow(image: store.image(for: card),
-                                                   screenSize: UIScreen.main.bounds.size) > 0 {
+                                                   screenSize: canvasSize) > 0 {
                         dragAxis = .pan
                     } else {
                         dragAxis = .vertical
@@ -371,7 +473,7 @@ struct HomeView: View {
     /// so the reposition persists — and exports exactly as shown.
     private func commitPan(_ card: ColorCard, translation: CGFloat) {
         let overflow = CardView.panOverflow(image: store.image(for: card),
-                                            screenSize: UIScreen.main.bounds.size)
+                                            screenSize: canvasSize)
         panPreview = 0
         guard overflow > 0 else { return }
         var updated = card
