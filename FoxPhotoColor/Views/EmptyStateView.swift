@@ -8,13 +8,13 @@ struct EmptyStateView: View {
     @ScaledMetric(relativeTo: .largeTitle) private var titleSize: CGFloat = 30
     @ScaledMetric(relativeTo: .subheadline) private var subtitleSize: CGFloat = 14
 
-    static let backgroundTop = Color(red: 0.58, green: 0.67, blue: 0.45)
-    static let backgroundBottom = Color(red: 0.42, green: 0.53, blue: 0.33)
+    /// The onboarding green, washed like the card canvas (measured off the
+    /// reference empty screen).
+    static let backgroundGradient = CanvasBackground(color: RGBAColor(r: 0.45, g: 0.58, b: 0.43))
 
     var body: some View {
         ZStack {
-            LinearGradient(colors: [Self.backgroundTop, Self.backgroundBottom],
-                           startPoint: .top, endPoint: .bottom)
+            Self.backgroundGradient
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -45,10 +45,10 @@ struct EmptyStateView: View {
                             .font(.system(size: 26, weight: .regular))
                             .foregroundStyle(.white.opacity(0.95))
                     }
-                    .frame(width: 92, height: 92)
+                    .frame(width: 108, height: 108)
                 }
                 .buttonStyle(PressableButtonStyle())
-                .padding(.top, 56)
+                .padding(.top, 48)
 
                 Spacer()
                 Spacer()
@@ -56,24 +56,21 @@ struct EmptyStateView: View {
         }
     }
 
-    /// Stacked soft ellipses — the app's logo mark (light → mid → deep green).
+    /// Stacked soft ellipses — the app's logo mark: a pale leaf behind, a deep
+    /// green one in front, offset down (matching the reference mark).
     private var logoMark: some View {
         ZStack {
             Ellipse()
-                .fill(Color(red: 0.16, green: 0.22, blue: 0.11))
-                .frame(width: 46, height: 54)
-                .offset(y: 10)
+                .fill(Color(red: 0.85, green: 0.89, blue: 0.70))
+                .frame(width: 52, height: 66)
+                .offset(y: -12)
             Ellipse()
-                .fill(Color(red: 0.45, green: 0.56, blue: 0.30))
-                .frame(width: 46, height: 54)
-                .offset(y: 0)
-            Ellipse()
-                .fill(Color(red: 0.85, green: 0.90, blue: 0.68))
-                .frame(width: 46, height: 54)
-                .offset(y: -10)
-                .opacity(0.92)
+                .fill(Color(red: 0.24, green: 0.32, blue: 0.20))
+                .frame(width: 52, height: 66)
+                .offset(y: 12)
+                .opacity(0.9)
         }
-        .frame(width: 64, height: 78)
+        .frame(width: 64, height: 96)
     }
 }
 

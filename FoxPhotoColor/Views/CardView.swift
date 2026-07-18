@@ -1,16 +1,31 @@
 import SwiftUI
 import PhotosUI
 
-/// The poster: a large continuous-corner card on a darker same-hue canvas.
+/// The canvas behind the poster card: a radial wash lit from the top-leading
+/// corner — card color lightened there, passing through the card color, and
+/// settling slightly darker toward the bottom (measured off the reference).
+struct CanvasBackground: View {
+    let color: RGBAColor
+
+    var body: some View {
+        RadialGradient(stops: [
+            .init(color: color.canvasLight.color, location: 0),
+            .init(color: color.color, location: 0.44),
+            .init(color: color.canvasDark.color, location: 0.75),
+        ], center: .topLeading, startRadius: 0, endRadius: 1000)
+    }
+}
+
+/// The poster: a large continuous-corner card floating on the canvas wash.
 /// Title centered in the card's colored zone; the photo runs edge-to-edge to
 /// the card's sides and bottom, clipped by the card's corners — matching the
 /// reference app exactly.
 struct CardView: View {
     let card: ColorCard
     let image: UIImage?
-    /// On-screen only; the exported poster stays clean unless the user opts
-    /// into the flat palette strip below.
-    var onSwatchTap: ((RGBAColor) -> Void)? = nil
+    /// Tap on the colored zone (outside the title) cycles the background
+    /// through the palette; on-screen only.
+    var onCycleColor: (() -> Void)? = nil
     /// Export option: flat strip of the extracted palette near the bottom.
     var showsPaletteStrip: Bool = false
     /// Async Live Photo loader; nil in export/poster contexts.
@@ -25,21 +40,30 @@ struct CardView: View {
 
     var body: some View {
         GeometryReader { geo in
+            // Reference proportions (measured off IMG_2531/2532): card top at
+            // 17% of the screen, a 24.9%-of-screen title zone, then the photo
+            // full-width at natural aspect. The card's bottom edge IS the
+            // photo's bottom edge (the card's 20pt corners clip the photo);
+            // below it the canvas wash runs to the screen bottom.
             let cardWidth = geo.size.width - 30
-            let cardHeight = geo.size.height * 0.60
-            let photoHeight = photoHeight(cardWidth: cardWidth, cardHeight: cardHeight)
+            let cardTop = geo.size.height * 0.17
+            let titleZone = geo.size.height * 0.249
+            let maxPhotoHeight = geo.size.height - cardTop - titleZone - 15
+            let photoHeight = photoHeight(cardWidth: cardWidth,
+                                          minHeight: geo.size.height * 0.22,
+                                          maxHeight: maxPhotoHeight)
 
             VStack(spacing: 0) {
-                Spacer().frame(height: geo.size.height * 0.125)
+                Spacer().frame(height: cardTop)
 
                 VStack(spacing: 0) {
                     titleBlock
-                        .frame(width: cardWidth, height: cardHeight - photoHeight)
+                        .frame(width: cardWidth, height: titleZone)
                     photoView(width: cardWidth, height: photoHeight)
                 }
-                .frame(width: cardWidth, height: cardHeight)
+                .frame(width: cardWidth, height: titleZone + photoHeight)
                 .background(card.background.color)
-                .clipShape(RoundedRectangle(cornerRadius: 34, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
 
                 Spacer(minLength: 0)
             }
@@ -49,10 +73,7 @@ struct CardView: View {
                 livePhoto = await loadLivePhoto()
             }
             .overlay(alignment: .bottom) {
-                if let onSwatchTap, card.palette.count > 1 {
-                    SwatchRow(card: card, onTap: onSwatchTap)
-                        .padding(.bottom, 30)
-                } else if showsPaletteStrip, card.palette.count > 1 {
+                if showsPaletteStrip, card.palette.count > 1 {
                     HStack(spacing: 5) {
                         ForEach(Array(card.palette.prefix(6).enumerated()), id: \.offset) { _, swatch in
                             RoundedRectangle(cornerRadius: 3)
@@ -71,24 +92,28 @@ struct CardView: View {
     // whose composition must match its exported image; Dynamic Type applies
     // to the app chrome instead.
     private var titleBlock: some View {
-        VStack(spacing: 9) {
+        VStack(spacing: 12) {
             Text(card.title.uppercased())
                 .font(.system(size: 14, weight: .heavy))
                 .tracking(3.0)
-                .lineSpacing(5)
+                // Reference keeps even long names on one line, shrinking to fit.
+                .lineLimit(1)
+                .minimumScaleFactor(0.55)
                 .multilineTextAlignment(.center)
             Text(card.timeText.uppercased())
-                .font(.system(size: 10.5, weight: .semibold))
-                .tracking(2.4)
+                .font(.system(size: 9.5, weight: .semibold))
+                .tracking(2.2)
                 .opacity(0.85)
         }
         .foregroundStyle(card.accent.color)
         .padding(.horizontal, 28)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
-        // Spatial mapping: the title block owns rename + card actions; the
-        // photo below owns Live Photo playback. No shared owners.
-        .onTapGesture { onTitleTap?() }
+        // Reference behavior: tapping the colored zone cycles the background
+        // through the photo's palette; rename and the rest live in the
+        // long-press menu. The photo below owns Live Photo playback.
+        .onTapGesture { (onCycleColor ?? onTitleTap)?() }
+        .accessibilityHint(Text("card.recolor.a11y"))
         .contextMenu {
             if let onTitleTap {
                 Button { onTitleTap() } label: { Label("action.rename", systemImage: "pencil") }
@@ -134,12 +159,12 @@ struct CardView: View {
         }
     }
 
-    /// Photo fills the card's width; height follows the aspect ratio inside
-    /// sane bounds so panoramas and portraits both keep the reference layout.
-    private func photoHeight(cardWidth: CGFloat, cardHeight: CGFloat) -> CGFloat {
-        guard let image, image.size.width > 0 else { return cardHeight * 0.55 }
+    /// Photo fills the card's width at its natural aspect ratio, clamped so
+    /// panoramas and portraits both keep a poster-like card.
+    private func photoHeight(cardWidth: CGFloat, minHeight: CGFloat, maxHeight: CGFloat) -> CGFloat {
+        guard let image, image.size.width > 0 else { return (minHeight + maxHeight) / 2 }
         let natural = cardWidth * image.size.height / image.size.width
-        return min(max(natural, cardHeight * 0.38), cardHeight * 0.64)
+        return min(max(natural, minHeight), maxHeight)
     }
 }
 
@@ -171,44 +196,3 @@ private struct LivePhotoView: UIViewRepresentable {
     }
 }
 
-/// Tappable palette dots: pick any extracted color as the card's background.
-private struct SwatchRow: View {
-    let card: ColorCard
-    let onTap: (RGBAColor) -> Void
-
-    var body: some View {
-        let swatches = Array(card.palette.prefix(6).enumerated())
-        HStack(spacing: 2) {
-            ForEach(swatches, id: \.offset) { index, swatch in
-                let current = isCurrent(swatch)
-                Button {
-                    onTap(swatch)
-                } label: {
-                    Circle()
-                        .fill(swatch.color)
-                        .frame(width: current ? 19 : 15, height: current ? 19 : 15)
-                        .overlay(
-                            Circle().strokeBorder(
-                                card.accent.color.opacity(current ? 0.9 : 0.25),
-                                lineWidth: current ? 2 : 1)
-                        )
-                        // 44pt HIG-minimum hit target around the small dot
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(PressableButtonStyle())
-                .accessibilityLabel(Text(String(format: String(localized: "swatch.item.a11y"),
-                                                index + 1, swatches.count)))
-                .accessibilityAddTraits(current ? [.isSelected] : [])
-            }
-        }
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(Text("swatch.row.a11y"))
-    }
-
-    private func isCurrent(_ swatch: RGBAColor) -> Bool {
-        // The background is a muted derivation of its source swatch, so compare
-        // through the same derivation.
-        PaletteExtractor.rederive(from: swatch, palette: card.palette).background == card.background
-    }
-}

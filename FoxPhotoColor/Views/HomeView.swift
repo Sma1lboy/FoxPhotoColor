@@ -18,20 +18,14 @@ struct HomeView: View {
 
     private enum DragAxis { case undetermined, vertical, horizontal }
 
-    @ScaledMetric(relativeTo: .headline) private var brandSize: CGFloat = 19
+    @ScaledMetric(relativeTo: .headline) private var brandSize: CGFloat = 21
 
     private var currentCard: ColorCard? {
         store.card(id: selection) ?? store.cards.first
     }
 
-    /// The screen canvas is the darker sibling of the card color (reference:
-    /// the poster card floats slightly lighter on its surround).
-    private var backgroundColor: Color {
-        currentCard?.background.outerBackground.color ?? EmptyStateView.backgroundBottom
-    }
-
     private var chromeIsDark: Bool {
-        currentCard?.background.outerBackground.isLight ?? false
+        currentCard?.background.isLight ?? false
     }
 
     /// Reduced-motion users get a short cross-fade instead of springs (skill §14).
@@ -41,9 +35,15 @@ struct HomeView: View {
 
     var body: some View {
         ZStack {
-            backgroundColor
-                .ignoresSafeArea()
-                .animation(uiAnimation, value: currentCard?.background)
+            Group {
+                if let card = currentCard {
+                    CanvasBackground(color: card.background)
+                } else {
+                    EmptyStateView.backgroundGradient
+                }
+            }
+            .ignoresSafeArea()
+            .animation(uiAnimation, value: currentCard?.background)
 
             if store.cards.isEmpty {
                 EmptyStateView(pickerItem: $pickerItem)
@@ -53,11 +53,14 @@ struct HomeView: View {
                         let isCurrent = (selection ?? store.cards.first?.id) == card.id
                         CardView(card: card,
                                  image: store.image(for: card),
-                                 onSwatchTap: { swatch in recolor(card, with: swatch) },
+                                 onCycleColor: { cycleColor(card) },
                                  loadLivePhoto: { await store.loadLivePhoto(for: card) },
                                  onTitleTap: { beginRename(card) },
                                  onExport: { export(card) },
                                  onDelete: { deleteCard(card) })
+                            // Reference proportions are fractions of the full
+                            // screen — let each page's geometry span it.
+                            .ignoresSafeArea()
                             .offset(y: isCurrent ? dragOffset : 0)
                             .opacity(isCurrent ? Double(1 - min(0.35, max(0, -dragOffset) / 900)) : 1)
                             .simultaneousGesture(dismissGesture(for: card))
@@ -68,9 +71,13 @@ struct HomeView: View {
                 .ignoresSafeArea()
             }
 
-            VStack {
-                topBar
-                Spacer()
+            // The reference onboarding screen is chrome-free; the bar belongs
+            // to the card browser only.
+            if !store.cards.isEmpty {
+                VStack {
+                    topBar
+                    Spacer()
+                }
             }
 
             if store.pendingDelete != nil {
@@ -147,23 +154,21 @@ struct HomeView: View {
         // Dark backgrounds want a light status bar and vice versa; under the
         // SwiftUI lifecycle preferredColorScheme is what drives it.
         .preferredColorScheme(chromeIsDark ? .light : .dark)
+        // The reference app runs with the status bar hidden — the poster owns
+        // the whole screen.
+        .statusBarHidden(true)
     }
 
     // MARK: - Top bar
 
     private var topBar: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 9) {
             Text(verbatim: "FoxPhotoColor")
                 .font(.system(size: brandSize, weight: .bold))
                 .foregroundStyle(chromeForeground)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
             Spacer()
-            if store.cards.count > 1 {
-                Button {
-                    showGrid = true
-                } label: {
-                    chromeIcon("square.grid.2x2")
-                }
-            }
             PhotosPicker(selection: $pickerItem, matching: .images, photoLibrary: .shared()) {
                 chromeIcon("plus")
             }
@@ -180,8 +185,9 @@ struct HomeView: View {
                 chromeIcon("gearshape")
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 6)
+        .padding(.leading, 16)
+        .padding(.trailing, 15)
+        .padding(.top, 12)
     }
 
     private var chromeForeground: Color {
@@ -190,15 +196,15 @@ struct HomeView: View {
 
     private func chromeIcon(_ systemName: String) -> some View {
         Image(systemName: systemName)
-            .font(.system(size: 15, weight: .semibold))
+            .font(.system(size: 19, weight: .light))
             .foregroundStyle(chromeForeground)
-            .frame(width: 38, height: 38)
+            .frame(width: 46, height: 46)
             // Real material chrome (skill §12), not a flat tint — adapts with
             // the per-card color scheme. Thin ring like the reference buttons.
             .background(.ultraThinMaterial, in: Circle())
             .overlay(
                 Circle().strokeBorder(
-                    (chromeIsDark ? Color.black : Color.white).opacity(0.28),
+                    (chromeIsDark ? Color.black : Color.white).opacity(0.22),
                     lineWidth: 1)
             )
             .contentShape(Circle())
@@ -363,10 +369,20 @@ struct HomeView: View {
             // text stays legible over any card color.
             .background(.regularMaterial, in: Capsule())
             .environment(\.colorScheme, .dark)
-            // Sits above the swatch row so the two never overlap.
-            .padding(.bottom, 96)
+            .padding(.bottom, 40)
         }
         .transition(.move(edge: .bottom).combined(with: .opacity))
+    }
+
+    /// Reference behavior: tapping the colored zone advances the background
+    /// through the extracted palette.
+    private func cycleColor(_ card: ColorCard) {
+        let palette = Array(card.palette.prefix(6))
+        guard palette.count > 1 else { return }
+        let currentIndex = palette.firstIndex {
+            PaletteExtractor.rederive(from: $0, palette: card.palette).background == card.background
+        } ?? -1
+        recolor(card, with: palette[(currentIndex + 1) % palette.count])
     }
 
     private func recolor(_ card: ColorCard, with swatch: RGBAColor) {

@@ -51,7 +51,9 @@ enum SampleSeed {
     ]
 
     private static func render(_ spec: Spec) -> UIImage {
-        let size = CGSize(width: 900, height: 1100)
+        // Landscape like the reference shots — the card clamps tall photos, so
+        // seeds must be landscape to exercise the reference layout.
+        let size = CGSize(width: 1200, height: 900)
         let renderer = UIGraphicsImageRenderer(size: size)
         return renderer.image { ctx in
             let cg = ctx.cgContext

@@ -1,198 +1,502 @@
 {
-  "sourceLanguage" : "zh-Hans",
-  "strings" : {
-    "action.cancel" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "取消" } }
+  "sourceLanguage": "zh-Hans",
+  "strings": {
+    "action.cancel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        }
       }
     },
-    "action.delete" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除" } }
+    "action.delete": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除"
+          }
+        }
       }
     },
-    "action.ok" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "OK" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "好" } }
+    "action.done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
+        }
       }
     },
-    "action.done" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Done" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "完成" } }
+    "action.export": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出"
+          }
+        }
       }
     },
-    "action.export" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "导出" } }
+    "action.ok": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "好"
+          }
+        }
       }
     },
-    "action.rename" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rename" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重命名" } }
+    "action.rename": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重命名"
+          }
+        }
       }
     },
-    "card.live.a11y" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Live Photo. Long-press to play." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "实况照片，长按播放。" } }
+    "action.share": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享"
+          }
+        }
       }
     },
-    "card.default_title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Somewhere" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未命名之地" } }
+    "action.undo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "撤销"
+          }
+        }
       }
     },
-    "empty.subtitle" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pick a photo to generate your color card." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "选择一张照片，生成你的色卡。" } }
+    "card.default_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Somewhere"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未命名之地"
+          }
+        }
       }
     },
-    "empty.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Every Place Has Its Signature Color" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "每个地方都有它的签名色" } }
+    "card.live.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live Photo. Long-press to play."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实况照片，长按播放。"
+          }
+        }
       }
     },
-    "error.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Something Went Wrong" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "出了点问题" } }
+    "card.recolor.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to change the card background color."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轻点更换色卡背景颜色。"
+          }
+        }
       }
     },
-    "error.import_failed" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Couldn't import this photo. If it's in iCloud, check your network and try again." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法导入这张照片。如果它在 iCloud 中，请检查网络后重试。" } }
+    "empty.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick a photo to generate your color card."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择一张照片，生成你的色卡。"
+          }
+        }
       }
     },
-    "error.load_failed" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your card index couldn't be read. The damaged file was saved as a backup." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "色卡索引读取失败。受损文件已另存为备份。" } }
+    "empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every Place Has Its Signature Color"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每个地方都有它的签名色"
+          }
+        }
       }
     },
-    "error.save_failed" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Changes couldn't be saved. Check free storage space." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "更改保存失败，请检查设备剩余空间。" } }
+    "error.export_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load this card's photo for export."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法读取这张色卡的照片，导出失败。"
+          }
+        }
       }
     },
-    "error.export_failed" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Couldn't load this card's photo for export." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法读取这张色卡的照片，导出失败。" } }
+    "error.import_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't import this photo. If it's in iCloud, check your network and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法导入这张照片。如果它在 iCloud 中，请检查网络后重试。"
+          }
+        }
       }
     },
-    "export.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export Style" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "导出样式" } }
+    "error.load_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your card index couldn't be read. The damaged file was saved as a backup."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "色卡索引读取失败。受损文件已另存为备份。"
+          }
+        }
       }
     },
-    "export.ratio" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Aspect ratio" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "画幅比例" } }
+    "error.save_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changes couldn't be saved. Check free storage space."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更改保存失败，请检查设备剩余空间。"
+          }
+        }
       }
     },
-    "export.ratio.phone" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Phone" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "手机全屏" } }
+    "error.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something Went Wrong"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出了点问题"
+          }
+        }
       }
     },
-    "export.ratio.social" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "4:5" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "4:5 社交" } }
+    "export.palette_strip": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Include palette strip"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "附上调色板条"
+          }
+        }
       }
     },
-    "export.palette_strip" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Include palette strip" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "附上调色板条" } }
+    "export.ratio": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aspect ratio"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "画幅比例"
+          }
+        }
       }
     },
-    "action.share" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Share" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "分享" } }
+    "export.ratio.phone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phone"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "手机全屏"
+          }
+        }
       }
     },
-    "toast.deleted" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Card deleted" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已删除色卡" } }
+    "export.ratio.social": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4:5"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4:5 社交"
+          }
+        }
       }
     },
-    "action.undo" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Undo" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "撤销" } }
+    "export.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export Style"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出样式"
+          }
+        }
       }
     },
-    "grid.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "All Cards" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "全部色卡" } }
+    "grid.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All Cards"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部色卡"
+          }
+        }
       }
     },
-    "rename.message" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Name this color card" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "给这张色卡起个名字" } }
+    "rename.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name this color card"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "给这张色卡起个名字"
+          }
+        }
       }
     },
-    "rename.placeholder" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Place name" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "地点名称" } }
+    "rename.placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Place name"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地点名称"
+          }
+        }
       }
     },
-    "swatch.item.a11y" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Color %1$d of %2$d" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "颜色 %1$d / %2$d" } }
+    "settings.about": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关于"
+          }
+        }
       }
     },
-    "swatch.row.a11y" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Palette colors. Pick one as the card background." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "调色板颜色，选择一个作为色卡背景。" } }
+    "settings.about.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FoxPhotoColor extracts the colors of your photos and turns each place into a minimalist color card."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FoxPhotoColor 提取照片中的色彩，把每个地方变成一张极简色卡。"
+          }
+        }
       }
     },
-    "settings.about" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "About" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关于" } }
+    "settings.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置"
+          }
+        }
       }
     },
-    "settings.about.body" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "FoxPhotoColor extracts the colors of your photos and turns each place into a minimalist color card." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "FoxPhotoColor 提取照片中的色彩，把每个地方变成一张极简色卡。" } }
+    "settings.version": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版本"
+          }
+        }
       }
     },
-    "settings.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "设置" } }
-      }
-    },
-    "settings.version" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Version" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "版本" } }
+    "toast.deleted": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Card deleted"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已删除色卡"
+          }
+        }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

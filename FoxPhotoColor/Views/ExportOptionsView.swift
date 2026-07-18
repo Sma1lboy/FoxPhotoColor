@@ -86,7 +86,7 @@ struct ExportOptionsView: View {
             let size = ratio.size
             let scale = min(geo.size.width / size.width, geo.size.height / size.height)
             ZStack {
-                card.background.outerBackground.color
+                CanvasBackground(color: card.background)
                 CardView(card: card, image: image, showsPaletteStrip: showPaletteStrip)
             }
             .frame(width: size.width, height: size.height)

@@ -6,7 +6,7 @@ iOS (SwiftUI, iOS 17+) 色卡生成 app,参考 PhotoColors:选照片 → k-means
 
 - 设计规范:`.claude/skills/apple-design/SKILL.md`(弹簧动画默认 critically damped `response 0.3–0.5, damping 1.0`;按压反馈用 `PressableButtonStyle`;背景色切换用 spring 过渡)。
 - 参考截图:`~/Downloads/IMG_2504-2507.PNG` + 特写 `IMG_2530-2533.PNG`(布局与配色的真相源)。
-- 布局基准(2530-2533 实测):**海报是内嵌圆角卡片**——外层画布 = 卡片色同色相压暗一档(`RGBAColor.outerBackground`);卡片占屏高 12.5%→72.5%、左右 15pt、圆角 34 continuous;标题居中在卡片上部色块区;照片贴满卡片宽度、底边与卡片底对齐、被圆角裁切,高度按宽高比夹在卡片高的 38-64%。空状态页无卡片,全屏渐变。
+- 布局基准(2530-2533 实测):**海报是内嵌圆角卡片**——外层画布 = 以卡片色为中点的放射渐变(`CanvasBackground`:topLeading 亮 24% → 卡片色 → 底部暗 14%);卡片顶在屏高 17%、左右 15pt、圆角 20 continuous;标题区高 = 屏高 24.9%,标题居中其间;照片贴满卡片宽度、自然宽高比、底边即卡片底边(被圆角裁切),下限屏高 22%、上限到屏底留 15pt。顶栏:品牌字 21pt bold 左 16pt,右侧 46pt material 圆钮。状态栏隐藏。空状态页无顶栏、无卡片,全屏 CanvasBackground 绿。点按卡片色块区循环调色板换背景(替代旧色点行)。
 
 ## 构建 & 调试 harness(重要:全部自助,不需要人工点模拟器)
 

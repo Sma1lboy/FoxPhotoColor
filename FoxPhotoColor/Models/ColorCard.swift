@@ -42,12 +42,16 @@ struct RGBAColor: Codable, Equatable, Hashable {
         RGBAColor(uiColor: UIColor(hue: h, saturation: s, brightness: b, alpha: 1))
     }
 
-    /// The outer canvas tone behind the poster card: same hue, one step darker
-    /// (reference app renders the card slightly lighter than its surround).
-    var outerBackground: RGBAColor {
-        let (h, s, b) = hsb
-        let factor = isLight ? 0.10 : 0.20
-        return .fromHSB(h: h, s: min(s * 1.08, 1), b: b * (1 - factor))
+    /// Canvas endpoints behind the poster card. The reference renders a radial
+    /// wash from the top-leading corner: card lightened 24% toward white there,
+    /// darkened 14% toward black past the card — the card color sits mid-ramp.
+    var canvasLight: RGBAColor { mixed(toward: 1, fraction: 0.24) }
+    var canvasDark: RGBAColor { mixed(toward: 0, fraction: 0.14) }
+
+    private func mixed(toward target: Double, fraction: Double) -> RGBAColor {
+        RGBAColor(r: r + (target - r) * fraction,
+                  g: g + (target - g) * fraction,
+                  b: b + (target - b) * fraction)
     }
 }
 

@@ -21,7 +21,7 @@ enum CardPosterRenderer {
                        showPaletteStrip: Bool = false) -> UIImage {
         let size = ratio.size
         let poster = ZStack {
-            card.background.outerBackground.color
+            CanvasBackground(color: card.background)
             CardView(card: card, image: image, showsPaletteStrip: showPaletteStrip)
         }
         .frame(width: size.width, height: size.height)
