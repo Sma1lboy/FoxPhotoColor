@@ -9,7 +9,7 @@ enum AITitle {
         ProcessInfo.processInfo.environment["FPC_AI_BASE_URL"] ?? "http://127.0.0.1:8317"
     }
     private static var apiKey: String {
-        ProcessInfo.processInfo.environment["FPC_AI_KEY"] ?? "20021001"
+        ProcessInfo.processInfo.environment["FPC_AI_KEY"] ?? ""
     }
     private static var model: String {
         ProcessInfo.processInfo.environment["FPC_AI_MODEL"] ?? "claude-opus-4-8"
@@ -49,7 +49,9 @@ enum AITitle {
         request.httpMethod = "POST"
         request.timeoutInterval = 20
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+        if !apiKey.isEmpty {
+            request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+        }
         request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
 
         let body: [String: Any] = [
