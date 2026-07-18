@@ -46,6 +46,13 @@ scripts/harness.sh all --seed     # build+run+capture 一条龙
 - [x] R9: 网格总览(双列迷你海报,点击跳卡,FPC_GRID 钩子)
 - [x] R11a: 触觉反馈(建卡/换色/甩删/撤销四个提交时刻)
 - [x] R8/R9 审查加固:原始字节持久化(保 content identifier,重启后 Live Photo 可重配对)、视频后置加载、标题区/照片区手势分权、badge material 底、孤儿文件清扫、360px 网格缩略图缓存
-- [ ] R10: WidgetKit 小组件(随机/最新色卡上桌面;需 pbxproj 加 extension target)
-- [ ] R11b: 性能(超大图提取耗时基准、启动时间)
-- [ ] R12: 真机验证(Live Photo 全链路)+ TestFlight 准备(签名、隐私清单)
+- [x] R10: WidgetKit 小组件(小/中两档,App Group 快照共享,persist 即刷新;pbxproj 手写 extension target)
+- [x] R11b: 性能门槛(12MP 提取 0.05s,基准断言 <2s 进测试)
+- [x] R12: 发布就绪(PrivacyInfo.xcprivacy、Release 构建门、RELEASE.md)——真机 QA 与 TestFlight 上传需用户的 Apple Developer 账号,清单已备好
+
+**↑ R1-R12 全部完成(15 commits)。项目按原始规划交付。继续迭代方向(R13+):**
+
+- [ ] R13: 锁屏小组件(accessoryRectangular)+ widget 深链进对应卡片
+- [ ] R14: 设置页扩充(时间格式 12/24h、默认导出比例、清除全部数据)
+- [ ] R15: iPad 适配(TARGETED_DEVICE_FAMILY 1,2 + 布局)
+- [ ] R16: CloudKit 同步(多设备色卡库)
