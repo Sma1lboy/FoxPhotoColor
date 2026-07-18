@@ -24,12 +24,14 @@ struct HomeView: View {
         store.card(id: selection) ?? store.cards.first
     }
 
+    /// The screen canvas is the darker sibling of the card color (reference:
+    /// the poster card floats slightly lighter on its surround).
     private var backgroundColor: Color {
-        currentCard?.background.color ?? EmptyStateView.backgroundBottom
+        currentCard?.background.outerBackground.color ?? EmptyStateView.backgroundBottom
     }
 
     private var chromeIsDark: Bool {
-        currentCard?.background.isLight ?? false
+        currentCard?.background.outerBackground.isLight ?? false
     }
 
     /// Reduced-motion users get a short cross-fade instead of springs (skill §14).
@@ -192,8 +194,13 @@ struct HomeView: View {
             .foregroundStyle(chromeForeground)
             .frame(width: 38, height: 38)
             // Real material chrome (skill §12), not a flat tint — adapts with
-            // the per-card color scheme.
+            // the per-card color scheme. Thin ring like the reference buttons.
             .background(.ultraThinMaterial, in: Circle())
+            .overlay(
+                Circle().strokeBorder(
+                    (chromeIsDark ? Color.black : Color.white).opacity(0.28),
+                    lineWidth: 1)
+            )
             .contentShape(Circle())
     }
 

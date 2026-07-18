@@ -1,8 +1,10 @@
 import SwiftUI
 import PhotosUI
 
-/// The poster layout: letterspaced title high on the card, photo just below
-/// center, generous colored margins all around — matching the reference cards.
+/// The poster: a large continuous-corner card on a darker same-hue canvas.
+/// Title centered in the card's colored zone; the photo runs edge-to-edge to
+/// the card's sides and bottom, clipped by the card's corners — matching the
+/// reference app exactly.
 struct CardView: View {
     let card: ColorCard
     let image: UIImage?
@@ -23,71 +25,21 @@ struct CardView: View {
 
     var body: some View {
         GeometryReader { geo in
-            // ponytail: fixed point sizes are deliberate here — this is a poster
-            // artifact whose composition must match its exported image, not a
-            // text document; Dynamic Type applies to the app chrome instead.
-            VStack(spacing: 0) {
-                VStack(spacing: 9) {
-                    Text(card.title.uppercased())
-                        .font(.system(size: 14, weight: .heavy))
-                        .tracking(3.0)
-                        .lineSpacing(5)
-                        .multilineTextAlignment(.center)
-                    Text(card.timeText.uppercased())
-                        .font(.system(size: 10.5, weight: .semibold))
-                        .tracking(2.4)
-                        .opacity(0.85)
-                }
-                .foregroundStyle(card.accent.color)
-                .padding(.horizontal, 36)
-                .frame(height: geo.size.height * 0.34)
-                .frame(maxWidth: .infinity)
-                .contentShape(Rectangle())
-                // Spatial mapping: the title block owns rename + card actions;
-                // the photo below owns Live Photo playback. No shared owners.
-                .onTapGesture { onTitleTap?() }
-                .contextMenu {
-                    if let onTitleTap {
-                        Button { onTitleTap() } label: { Label("action.rename", systemImage: "pencil") }
-                    }
-                    if let onExport {
-                        Button { onExport() } label: { Label("action.export", systemImage: "square.and.arrow.up") }
-                    }
-                    if let onDelete {
-                        Button(role: .destructive) { onDelete() } label: { Label("action.delete", systemImage: "trash") }
-                    }
-                }
+            let cardWidth = geo.size.width - 30
+            let cardHeight = geo.size.height * 0.60
+            let photoHeight = photoHeight(cardWidth: cardWidth, cardHeight: cardHeight)
 
-                if let image {
-                    Group {
-                        if let livePhoto {
-                            LivePhotoView(livePhoto: livePhoto, playToken: playToken)
-                                .aspectRatio(image.size, contentMode: .fit)
-                                .onTapGesture { playToken += 1 } // tap or long-press plays
-                        } else {
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFit()
-                        }
-                    }
-                    .frame(maxWidth: geo.size.width - 48,
-                           maxHeight: geo.size.height * 0.42)
-                    .clipShape(RoundedRectangle(cornerRadius: 2))
-                    .overlay(alignment: .topLeading) {
-                        if livePhoto != nil {
-                            // White glyph on a material chip — legible over any
-                            // photo corner (skill §12), unlike the accent color.
-                            Image(systemName: "livephoto")
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundStyle(.white)
-                                .padding(5)
-                                .background(.ultraThinMaterial, in: Circle())
-                                .environment(\.colorScheme, .dark)
-                                .padding(6)
-                                .accessibilityLabel(Text("card.live.a11y"))
-                        }
-                    }
+            VStack(spacing: 0) {
+                Spacer().frame(height: geo.size.height * 0.125)
+
+                VStack(spacing: 0) {
+                    titleBlock
+                        .frame(width: cardWidth, height: cardHeight - photoHeight)
+                    photoView(width: cardWidth, height: photoHeight)
                 }
+                .frame(width: cardWidth, height: cardHeight)
+                .background(card.background.color)
+                .clipShape(RoundedRectangle(cornerRadius: 34, style: .continuous))
 
                 Spacer(minLength: 0)
             }
@@ -114,6 +66,81 @@ struct CardView: View {
             }
         }
     }
+
+    // ponytail: fixed point sizes are deliberate — this is a poster artifact
+    // whose composition must match its exported image; Dynamic Type applies
+    // to the app chrome instead.
+    private var titleBlock: some View {
+        VStack(spacing: 9) {
+            Text(card.title.uppercased())
+                .font(.system(size: 14, weight: .heavy))
+                .tracking(3.0)
+                .lineSpacing(5)
+                .multilineTextAlignment(.center)
+            Text(card.timeText.uppercased())
+                .font(.system(size: 10.5, weight: .semibold))
+                .tracking(2.4)
+                .opacity(0.85)
+        }
+        .foregroundStyle(card.accent.color)
+        .padding(.horizontal, 28)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(Rectangle())
+        // Spatial mapping: the title block owns rename + card actions; the
+        // photo below owns Live Photo playback. No shared owners.
+        .onTapGesture { onTitleTap?() }
+        .contextMenu {
+            if let onTitleTap {
+                Button { onTitleTap() } label: { Label("action.rename", systemImage: "pencil") }
+            }
+            if let onExport {
+                Button { onExport() } label: { Label("action.export", systemImage: "square.and.arrow.up") }
+            }
+            if let onDelete {
+                Button(role: .destructive) { onDelete() } label: { Label("action.delete", systemImage: "trash") }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func photoView(width: CGFloat, height: CGFloat) -> some View {
+        if let image {
+            Group {
+                if let livePhoto {
+                    LivePhotoView(livePhoto: livePhoto, playToken: playToken)
+                        .onTapGesture { playToken += 1 } // tap or long-press plays
+                } else {
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                }
+            }
+            .frame(width: width, height: height)
+            .clipped()
+            .overlay(alignment: .topLeading) {
+                if livePhoto != nil {
+                    // White glyph on a material chip — legible over any photo
+                    // corner (skill §12).
+                    Image(systemName: "livephoto")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .padding(5)
+                        .background(.ultraThinMaterial, in: Circle())
+                        .environment(\.colorScheme, .dark)
+                        .padding(8)
+                        .accessibilityLabel(Text("card.live.a11y"))
+                }
+            }
+        }
+    }
+
+    /// Photo fills the card's width; height follows the aspect ratio inside
+    /// sane bounds so panoramas and portraits both keep the reference layout.
+    private func photoHeight(cardWidth: CGFloat, cardHeight: CGFloat) -> CGFloat {
+        guard let image, image.size.width > 0 else { return cardHeight * 0.55 }
+        let natural = cardWidth * image.size.height / image.size.width
+        return min(max(natural, cardHeight * 0.38), cardHeight * 0.64)
+    }
 }
 
 /// PHLivePhotoView wrapper. Built-in long-press playback stays; bumping
@@ -124,7 +151,8 @@ private struct LivePhotoView: UIViewRepresentable {
 
     func makeUIView(context: Context) -> PHLivePhotoView {
         let view = PHLivePhotoView()
-        view.contentMode = .scaleAspectFit
+        view.contentMode = .scaleAspectFill
+        view.clipsToBounds = true
         return view
     }
 

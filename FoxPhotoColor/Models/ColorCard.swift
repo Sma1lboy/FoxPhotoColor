@@ -41,6 +41,14 @@ struct RGBAColor: Codable, Equatable, Hashable {
     static func fromHSB(h: Double, s: Double, b: Double) -> RGBAColor {
         RGBAColor(uiColor: UIColor(hue: h, saturation: s, brightness: b, alpha: 1))
     }
+
+    /// The outer canvas tone behind the poster card: same hue, one step darker
+    /// (reference app renders the card slightly lighter than its surround).
+    var outerBackground: RGBAColor {
+        let (h, s, b) = hsb
+        let factor = isLight ? 0.10 : 0.20
+        return .fromHSB(h: h, s: min(s * 1.08, 1), b: b * (1 - factor))
+    }
 }
 
 /// One generated color card: a photo plus its derived palette and caption.
