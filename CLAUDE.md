@@ -36,6 +36,14 @@ scripts/harness.sh all --seed     # build+run+capture 一条龙
 - [x] R2: 视觉对齐参考图 + app 图标 + 状态栏适配 + 审查修复(数据丢失防护/NSCache 降采样/accent 感知亮度/Reduce Motion/删卡 selection)
 - [x] R3: EXIF/GPS 自动命名(免相册权限直读图片数据)+ CLGeocoder 反向地理编码,拍摄时间做卡片时间
 - [x] R4: 卡片底部调色板圆点(44pt 命中区,VoiceOver 逐点标签),点选换背景 + accent 自动重配,FPC_RECOLOR 钩子验证
-- [ ] R5: 卡片切换/删除的流体动画与手势(velocity handoff、rubber-band)
-- [ ] R6: 导出样式选项(含/不含调色板条、比例 4:5/9:16)
-- [ ] R7: 单元测试(PaletteExtractor 确定性、CardStore 持久化)
+- [x] R5: 上滑删除手势(轴锁定 1:1 跟踪、rubber-band、动量投射决定提交、速度交接进弹簧)+ 5s 撤销 toast(免确认框,到期才真删文件)
+- [x] R6: 导出样式面板(实时预览、手机全屏/4:5、可选调色板条)
+- [x] R7: 模拟器内单元测试 scripts/test-palette.sh(18 断言:确定性/感知亮度差/退化输入/JSON 精确往返/rederive)+ test-metadata.sh
+
+**↑ MVP 完成(R1-R7 全勾,10 commits)。继续迭代:**
+
+- [ ] R8: Live Photo 支持(参考 app 主打"Pick a Live Photo")+ simctl addmedia 真照片端到端验证
+- [ ] R9: 卡片总览(网格视图,长按重排/批量删)
+- [ ] R10: WidgetKit 小组件(随机/最新色卡上桌面)
+- [ ] R11: 性能与打磨(超大图提取耗时、启动时间、触觉反馈 §13)
+- [ ] R12: 真机验证 + TestFlight 准备(签名、隐私清单)
