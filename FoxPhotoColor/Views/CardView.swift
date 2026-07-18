@@ -38,16 +38,15 @@ struct CardView: View {
 
     var body: some View {
         GeometryReader { geo in
-            // Reference proportions (measured off IMG_2531/2532): a fixed-
-            // footprint card — top at 17% of the screen, 15pt side and bottom
-            // margins. Inside, a FIXED composition: 24.9%-of-screen title
-            // zone, a 31.9%-of-screen photo slot (photos aspect-fill and
-            // center-crop into it), then card color to the card's bottom edge.
+            // Fixed card composition: top at 17% of the screen, a 24.9%-of-
+            // screen title zone, a 39%-of-screen photo slot — and the card
+            // ENDS at the photo's bottom edge (no colored zone below it).
+            // Photos aspect-fill and center-crop into the slot, so the card
+            // footprint never changes with the photo's aspect ratio.
             let cardWidth = geo.size.width - 30
             let cardTop = geo.size.height * 0.17
-            let cardHeight = geo.size.height - cardTop - 15
             let titleZone = geo.size.height * 0.249
-            let photoHeight = geo.size.height * 0.319
+            let photoHeight = geo.size.height * 0.39
 
             VStack(spacing: 0) {
                 Spacer().frame(height: cardTop)
@@ -56,14 +55,8 @@ struct CardView: View {
                     titleBlock
                         .frame(width: cardWidth, height: titleZone)
                     photoView(width: cardWidth, height: photoHeight)
-                        // Reference closeup: the photo's top corners are
-                        // square; only the bottom corners are rounded.
-                        .clipShape(UnevenRoundedRectangle(
-                            bottomLeadingRadius: 12, bottomTrailingRadius: 12,
-                            style: .continuous))
-                    Spacer(minLength: 0)
                 }
-                .frame(width: cardWidth, height: cardHeight)
+                .frame(width: cardWidth, height: titleZone + photoHeight)
                 .background(card.background.color)
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
 

@@ -39,16 +39,13 @@ struct PosterView: View {
                 .padding(.horizontal, 24)
                 .frame(maxWidth: .infinity)
                 .frame(height: geo.size.height * 0.33)
+                Spacer(minLength: 0)
 
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: geo.size.width, height: geo.size.height * 0.44)
-                    .clipShape(UnevenRoundedRectangle(
-                        bottomLeadingRadius: 12, bottomTrailingRadius: 12,
-                        style: .continuous))
-
-                Spacer(minLength: 0)
+                    .frame(width: geo.size.width, height: geo.size.height * 0.67)
+                    .clipped()
             }
             .frame(width: geo.size.width, height: geo.size.height)
             .background(card.background.color)
