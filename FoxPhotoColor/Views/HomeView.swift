@@ -13,7 +13,6 @@ struct HomeView: View {
     @State private var renameText = ""
     @State private var isImporting = false
     @State private var exportTarget: ColorCard?
-    @State private var dragOffset: CGFloat = 0
     @State private var dragAxis: DragAxis = .undetermined
     @State private var panPreview: CGFloat = 0
 
@@ -63,9 +62,7 @@ struct HomeView: View {
                             // Reference proportions are fractions of the full
                             // screen — let each page's geometry span it.
                             .ignoresSafeArea()
-                            .offset(y: isCurrent ? dragOffset : 0)
-                            .opacity(isCurrent ? Double(1 - min(0.35, max(0, -dragOffset) / 900)) : 1)
-                            .simultaneousGesture(dismissGesture(for: card))
+                            .simultaneousGesture(panGesture(for: card))
                             .tag(Optional(card.id))
                     }
                 }
@@ -191,6 +188,13 @@ struct HomeView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             Spacer()
+            if store.cards.count > 1 {
+                Button {
+                    showGrid = true
+                } label: {
+                    chromeIcon("square.grid.2x2")
+                }
+            }
             PhotosPicker(selection: $pickerItem, matching: .images, photoLibrary: .shared()) {
                 chromeIcon("plus")
             }
@@ -306,17 +310,16 @@ struct HomeView: View {
         exportTarget = card
     }
 
-    // MARK: - Fluid dismiss (skill §2/§3/§5/§6/§9: 1:1 tracking, interruptible,
-    // velocity handoff, momentum projection, rubber-band)
+    // MARK: - Photo crop pan (the ONLY vertical drag on a card; the reference
+    // has no swipe-to-delete — deletion lives in the long-press menu)
 
-    private func dismissGesture(for card: ColorCard) -> some Gesture {
+    private func panGesture(for card: ColorCard) -> some Gesture {
         DragGesture(minimumDistance: 14, coordinateSpace: .local)
             .onChanged { value in
                 guard (selection ?? store.cards.first?.id) == card.id else { return }
                 // Lock to an axis on first movement so horizontal paging wins
-                // cleanly when the user is swiping between cards. A vertical
-                // drag STARTING on the photo repositions the crop instead of
-                // dismissing — but only when the photo overflows its slot.
+                // cleanly. A vertical drag starting on an overflowing photo
+                // repositions its crop; anywhere else it does nothing.
                 if dragAxis == .undetermined {
                     if abs(value.translation.width) > abs(value.translation.height) {
                         dragAxis = .horizontal
@@ -329,14 +332,8 @@ struct HomeView: View {
                         dragAxis = .vertical
                     }
                 }
-                switch dragAxis {
-                case .pan:
+                if dragAxis == .pan {
                     panPreview = value.translation.height
-                case .vertical:
-                    let dy = value.translation.height
-                    dragOffset = dy < 0 ? dy : Self.rubberband(dy, dimension: 320)
-                default:
-                    break
                 }
             }
             .onEnded { value in
@@ -344,25 +341,6 @@ struct HomeView: View {
                 dragAxis = .undetermined
                 if axis == .pan {
                     commitPan(card, translation: value.translation.height)
-                    return
-                }
-                guard axis == .vertical else { return }
-                let velocity = value.velocity.height
-                let projected = dragOffset + Self.project(velocity)
-                let commitThreshold = -UIScreen.main.bounds.height * 0.32
-                if projected < commitThreshold, store.cards.count >= 1 {
-                    commitDismiss(card, velocity: velocity)
-                } else {
-                    // Hand the release velocity into the snap-back too (skill
-                    // §5) — a plain spring here would hard-cut the finger's
-                    // momentum ("brick wall").
-                    let relativeVelocity = dragOffset != 0
-                        ? Double(velocity / (0 - dragOffset)) : 0
-                    withAnimation(reduceMotion ? .easeOut(duration: 0.2)
-                                               : .interpolatingSpring(stiffness: 260, damping: 32,
-                                                                      initialVelocity: relativeVelocity)) {
-                        dragOffset = 0
-                    }
                 }
             }
     }
@@ -378,35 +356,6 @@ struct HomeView: View {
         let base = CGFloat(card.photoPanY ?? 0)
         updated.photoPanY = Double(min(max(base + translation / (overflow / 2), -1), 1))
         store.update(updated)
-    }
-
-    private func commitDismiss(_ card: ColorCard, velocity: CGFloat) {
-        let target = -UIScreen.main.bounds.height * 1.1
-        // Hand the gesture's velocity to the spring so there is no seam
-        // between the finger and the animation.
-        let relativeVelocity = Double(velocity / (target - dragOffset))
-        let fling: Animation = reduceMotion
-            ? .easeOut(duration: 0.18)
-            : .interpolatingSpring(stiffness: 180, damping: 26, initialVelocity: relativeVelocity)
-        Haptics.medium()
-        withAnimation(fling) {
-            dragOffset = target
-        }
-        Task {
-            try? await Task.sleep(for: .milliseconds(reduceMotion ? 180 : 230))
-            deleteCard(card)
-            dragOffset = 0
-        }
-    }
-
-    /// Apple's momentum projection (deceleration ≈ 0.998).
-    private static func project(_ velocity: CGFloat, decelerationRate: CGFloat = 0.998) -> CGFloat {
-        (velocity / 1000) * decelerationRate / (1 - decelerationRate)
-    }
-
-    /// Progressive resistance past a boundary (skill §9).
-    private static func rubberband(_ overshoot: CGFloat, dimension: CGFloat, constant: CGFloat = 0.55) -> CGFloat {
-        (overshoot * dimension * constant) / (dimension + constant * abs(overshoot))
     }
 
     private var undoToast: some View {
