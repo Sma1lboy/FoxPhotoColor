@@ -15,15 +15,35 @@ enum AITitle {
         ProcessInfo.processInfo.environment["FPC_AI_MODEL"] ?? "claude-opus-4-8"
     }
 
-    private static let prompt = """
-    这是一张用户照片,用于生成色卡海报的标题。请给出一个 2~6 个字的中文诗意标题,\
-    捕捉画面的氛围与色彩(例如:暮色小径、林间光斑、蓝调时刻)。\
-    只输出标题本身,不要标点、引号或任何解释。
-    """
+    /// Prompt follows the user's language so English users get English titles.
+    private static var prompt: String {
+        if Locale.preferredLanguages.first?.hasPrefix("zh") ?? false {
+            return """
+            这是一张用户照片,用于生成色卡海报的标题。请给出一个 2~6 个字的中文诗意标题,\
+            捕捉画面的氛围与色彩(例如:暮色小径、林间光斑、蓝调时刻)。\
+            只输出标题本身,不要标点、引号或任何解释。
+            """
+        }
+        return """
+        This is a user's photo, used as the title of a color-palette poster. \
+        Reply with a poetic English title of 2-4 words capturing the mood and \
+        colors (e.g. Dusk Path, Forest Glow, Blue Hour). Output only the title \
+        itself — no punctuation, quotes, or explanation.
+        """
+    }
 
     static func poeticTitle(for image: UIImage) async -> String? {
-        guard let url = URL(string: baseURL + "/v1/messages"),
-              let jpeg = downscaledJPEG(image) else { return nil }
+        guard let jpeg = downscaledJPEG(image) else { return nil }
+        // CPA 池冷启动/瞬时失败重试一次即可,再失败交给调用方兜底。
+        for attempt in 0..<2 {
+            if let title = await requestTitle(jpeg: jpeg) { return title }
+            if attempt == 0 { try? await Task.sleep(for: .seconds(1)) }
+        }
+        return nil
+    }
+
+    private static func requestTitle(jpeg: Data) async -> String? {
+        guard let url = URL(string: baseURL + "/v1/messages") else { return nil }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -64,7 +84,8 @@ enum AITitle {
         let title = raw
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .trimmingCharacters(in: CharacterSet(charactersIn: "「」《》\"'“”。.,!"))
-        guard !title.isEmpty, title.count <= 12, !title.contains("\n") else { return nil }
+        // 中文标题 2~6 字,英文 2~4 词——28 字符上限对两者都成立。
+        guard !title.isEmpty, title.count <= 28, !title.contains("\n") else { return nil }
         return title
     }
 
