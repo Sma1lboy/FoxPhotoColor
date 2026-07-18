@@ -8,6 +8,9 @@ struct CardView: View {
 
     var body: some View {
         GeometryReader { geo in
+            // ponytail: fixed point sizes are deliberate here — this is a poster
+            // artifact whose composition must match its exported image, not a
+            // text document; Dynamic Type applies to the app chrome instead.
             VStack(spacing: 0) {
                 VStack(spacing: 9) {
                     Text(card.title.uppercased())

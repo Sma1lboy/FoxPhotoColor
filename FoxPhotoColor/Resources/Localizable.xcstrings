@@ -13,6 +13,12 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除" } }
       }
     },
+    "action.ok" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "OK" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "好" } }
+      }
+    },
     "action.done" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Done" } },
@@ -47,6 +53,36 @@
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Every Place Has Its Signature Color" } },
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "每个地方都有它的签名色" } }
+      }
+    },
+    "error.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Something Went Wrong" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "出了点问题" } }
+      }
+    },
+    "error.import_failed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Couldn't import this photo. If it's in iCloud, check your network and try again." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法导入这张照片。如果它在 iCloud 中，请检查网络后重试。" } }
+      }
+    },
+    "error.load_failed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your card index couldn't be read. The damaged file was saved as a backup." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "色卡索引读取失败。受损文件已另存为备份。" } }
+      }
+    },
+    "error.save_failed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Changes couldn't be saved. Check free storage space." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "更改保存失败，请检查设备剩余空间。" } }
+      }
+    },
+    "error.export_failed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Couldn't load this card's photo for export." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法读取这张色卡的照片，导出失败。" } }
       }
     },
     "rename.message" : {

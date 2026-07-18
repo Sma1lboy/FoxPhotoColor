@@ -5,6 +5,8 @@ import PhotosUI
 /// mirrors the reference onboarding card.
 struct EmptyStateView: View {
     @Binding var pickerItem: PhotosPickerItem?
+    @ScaledMetric(relativeTo: .largeTitle) private var titleSize: CGFloat = 30
+    @ScaledMetric(relativeTo: .subheadline) private var subtitleSize: CGFloat = 14
 
     static let backgroundTop = Color(red: 0.58, green: 0.67, blue: 0.45)
     static let backgroundBottom = Color(red: 0.42, green: 0.53, blue: 0.33)
@@ -22,13 +24,13 @@ struct EmptyStateView: View {
                     .padding(.bottom, 36)
 
                 Text("empty.title")
-                    .font(.system(size: 30, weight: .bold, design: .serif))
+                    .font(.system(size: titleSize, weight: .bold, design: .serif))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.white)
                     .padding(.horizontal, 44)
 
                 Text("empty.subtitle")
-                    .font(.system(size: 14))
+                    .font(.system(size: subtitleSize))
                     .foregroundStyle(.white.opacity(0.85))
                     .multilineTextAlignment(.center)
                     .padding(.top, 14)
@@ -75,11 +77,16 @@ struct EmptyStateView: View {
 }
 
 /// Instant press feedback per the apple-design skill: respond on touch-down,
-/// critically damped spring, no lockout.
+/// critically damped spring, no lockout. Reduced motion swaps scale for opacity.
 struct PressableButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.94 : 1.0)
-            .animation(.spring(response: 0.25, dampingFraction: 1.0), value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.94 : 1.0)
+            .opacity(configuration.isPressed && reduceMotion ? 0.7 : 1.0)
+            .animation(reduceMotion ? .easeInOut(duration: 0.15)
+                                    : .spring(response: 0.25, dampingFraction: 1.0),
+                       value: configuration.isPressed)
     }
 }

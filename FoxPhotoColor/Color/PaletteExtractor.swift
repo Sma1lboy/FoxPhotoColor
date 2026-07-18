@@ -61,7 +61,28 @@ enum PaletteExtractor {
         } else {
             b = max(b, 0.78)
         }
-        return .fromHSB(h: h, s: s, b: b)
+        var accent = RGBAColor.fromHSB(h: h, s: s, b: b)
+
+        // HSB brightness is not perceived luminance (saturated blue at b=0.9 is
+        // still dark) — enforce a real luminance gap, falling back to warm
+        // near-white / near-black when hue alone can't get there.
+        let bgLum = background.luminance
+        if abs(accent.luminance - bgLum) < 0.28 {
+            if bgLum > 0.5 {
+                b = max(0.18, b - 0.30)
+                s = min(s + 0.15, 0.90)
+            } else {
+                s = min(s, 0.45)
+                b = min(1.0, b + 0.25)
+            }
+            accent = .fromHSB(h: h, s: s, b: b)
+            if abs(accent.luminance - bgLum) < 0.28 {
+                accent = bgLum > 0.5
+                    ? RGBAColor(r: 0.16, g: 0.15, b: 0.13)
+                    : RGBAColor(r: 0.96, g: 0.94, b: 0.89)
+            }
+        }
+        return accent
     }
 
     // MARK: - Sampling

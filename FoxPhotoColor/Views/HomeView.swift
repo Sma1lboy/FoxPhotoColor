@@ -3,6 +3,7 @@ import PhotosUI
 
 struct HomeView: View {
     @EnvironmentObject private var store: CardStore
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var selection: UUID?
     @State private var pickerItem: PhotosPickerItem?
@@ -24,11 +25,16 @@ struct HomeView: View {
         currentCard?.background.isLight ?? false
     }
 
+    /// Reduced-motion users get a short cross-fade instead of springs (skill §14).
+    private var uiAnimation: Animation {
+        reduceMotion ? .easeInOut(duration: 0.2) : .spring(response: 0.5, dampingFraction: 1.0)
+    }
+
     var body: some View {
         ZStack {
             backgroundColor
                 .ignoresSafeArea()
-                .animation(.spring(response: 0.5, dampingFraction: 1.0), value: currentCard?.background)
+                .animation(uiAnimation, value: currentCard?.background)
 
             if store.cards.isEmpty {
                 EmptyStateView(pickerItem: $pickerItem)
@@ -49,9 +55,7 @@ struct HomeView: View {
                                     Label("action.export", systemImage: "square.and.arrow.up")
                                 }
                                 Button(role: .destructive) {
-                                    withAnimation(.spring(response: 0.4, dampingFraction: 1.0)) {
-                                        store.delete(card)
-                                    }
+                                    deleteCard(card)
                                 } label: {
                                     Label("action.delete", systemImage: "trash")
                                 }
@@ -99,6 +103,14 @@ struct HomeView: View {
             Button("action.cancel", role: .cancel) { renameTarget = nil }
             Button("action.done") { commitRename() }
         }
+        .alert("error.title", isPresented: errorBinding) {
+            Button("action.ok", role: .cancel) { store.errorMessage = nil }
+        } message: {
+            Text(verbatim: store.errorMessage ?? "")
+        }
+        // Dark backgrounds want a light status bar and vice versa; under the
+        // SwiftUI lifecycle preferredColorScheme is what drives it.
+        .preferredColorScheme(chromeIsDark ? .light : .dark)
     }
 
     // MARK: - Top bar
@@ -155,13 +167,17 @@ struct HomeView: View {
                 pickerItem = nil
             }
             guard let data = try? await item.loadTransferable(type: Data.self),
-                  let image = UIImage(data: data) else { return }
+                  let image = UIImage(data: data) else {
+                // Realistic path: iCloud-offloaded photo picked while offline.
+                store.errorMessage = String(localized: "error.import_failed")
+                return
+            }
             let palette = await Task.detached(priority: .userInitiated) {
                 PaletteExtractor.extract(from: image)
             }.value
             let timeText = Date.now.formatted(date: .omitted, time: .shortened)
             let title = String(localized: "card.default_title")
-            withAnimation(.spring(response: 0.5, dampingFraction: 1.0)) {
+            withAnimation(uiAnimation) {
                 if let card = store.add(image: image, title: title, timeText: timeText, palette: palette) {
                     selection = card.id
                 }
@@ -170,9 +186,30 @@ struct HomeView: View {
     }
 
     private func export(_ card: ColorCard) {
-        guard let image = store.image(for: card) else { return }
+        guard let image = store.fullImage(for: card) ?? store.image(for: card) else {
+            store.errorMessage = String(localized: "error.export_failed")
+            return
+        }
         let poster = CardPosterRenderer.render(card: card, image: image)
         shareItem = ShareImage(image: poster)
+    }
+
+    private func deleteCard(_ card: ColorCard) {
+        // Reassign selection before removal so the TabView never points at a
+        // tag that no longer exists.
+        if selection == card.id || selection == nil {
+            let remaining = store.cards.filter { $0.id != card.id }
+            let oldIndex = store.cards.firstIndex(where: { $0.id == card.id }) ?? 0
+            selection = remaining.indices.contains(oldIndex) ? remaining[oldIndex].id : remaining.last?.id
+        }
+        withAnimation(uiAnimation) {
+            store.delete(card)
+        }
+    }
+
+    private var errorBinding: Binding<Bool> {
+        Binding(get: { store.errorMessage != nil },
+                set: { if !$0 { store.errorMessage = nil } })
     }
 
     private func beginRename(_ card: ColorCard) {
