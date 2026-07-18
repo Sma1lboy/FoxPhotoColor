@@ -76,6 +76,14 @@ struct HomeView: View {
                     .tint(chromeIsDark ? Color.black.opacity(0.6) : .white)
             }
         }
+        .onAppear {
+            // QA harness hook: FPC_SELECT=<index> jumps straight to a card so
+            // headless screenshots can reach every card without gestures.
+            if let raw = ProcessInfo.processInfo.environment["FPC_SELECT"],
+               let idx = Int(raw), store.cards.indices.contains(idx) {
+                selection = store.cards[idx].id
+            }
+        }
         .onChange(of: pickerItem) { _, newItem in
             guard let newItem else { return }
             importPhoto(newItem)

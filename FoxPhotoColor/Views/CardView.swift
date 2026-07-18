@@ -9,13 +9,14 @@ struct CardView: View {
     var body: some View {
         GeometryReader { geo in
             VStack(spacing: 0) {
-                VStack(spacing: 10) {
+                VStack(spacing: 9) {
                     Text(card.title.uppercased())
-                        .font(.system(size: 15, weight: .heavy))
-                        .tracking(3.2)
+                        .font(.system(size: 14, weight: .heavy))
+                        .tracking(3.0)
+                        .lineSpacing(5)
                         .multilineTextAlignment(.center)
                     Text(card.timeText.uppercased())
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.system(size: 10.5, weight: .semibold))
                         .tracking(2.4)
                         .opacity(0.85)
                 }

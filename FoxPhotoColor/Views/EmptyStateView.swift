@@ -53,25 +53,24 @@ struct EmptyStateView: View {
         }
     }
 
-    /// Two stacked soft ellipses — the app's logo mark.
+    /// Stacked soft ellipses — the app's logo mark (light → mid → deep green).
     private var logoMark: some View {
         ZStack {
             Ellipse()
-                .fill(Color(red: 0.18, green: 0.25, blue: 0.13).opacity(0.9))
-                .frame(width: 54, height: 62)
-                .offset(y: 8)
+                .fill(Color(red: 0.16, green: 0.22, blue: 0.11))
+                .frame(width: 46, height: 54)
+                .offset(y: 10)
             Ellipse()
-                .fill(Color(red: 0.87, green: 0.92, blue: 0.72))
-                .frame(width: 44, height: 50)
-                .offset(y: -8)
-                .blendMode(.softLight)
+                .fill(Color(red: 0.45, green: 0.56, blue: 0.30))
+                .frame(width: 46, height: 54)
+                .offset(y: 0)
             Ellipse()
-                .fill(Color(red: 0.55, green: 0.66, blue: 0.38))
-                .frame(width: 44, height: 50)
-                .offset(y: -2)
-                .opacity(0.85)
+                .fill(Color(red: 0.85, green: 0.90, blue: 0.68))
+                .frame(width: 46, height: 54)
+                .offset(y: -10)
+                .opacity(0.92)
         }
-        .frame(width: 64, height: 76)
+        .frame(width: 64, height: 78)
     }
 }
 
