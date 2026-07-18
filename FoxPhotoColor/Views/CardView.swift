@@ -26,8 +26,6 @@ struct CardView: View {
     /// Tap on the colored zone (outside the title) cycles the background
     /// through the palette; on-screen only.
     var onCycleColor: (() -> Void)? = nil
-    /// Export option: flat strip of the extracted palette near the bottom.
-    var showsPaletteStrip: Bool = false
     /// Async Live Photo loader; nil in export/poster contexts.
     var loadLivePhoto: (() async -> PHLivePhoto?)? = nil
     /// Title-block actions (rename on tap, menu on long-press); nil in export.
@@ -75,19 +73,6 @@ struct CardView: View {
             .task(id: card.videoFileName) {
                 guard let loadLivePhoto else { return }
                 livePhoto = await loadLivePhoto()
-            }
-            .overlay(alignment: .bottom) {
-                if showsPaletteStrip, card.palette.count > 1 {
-                    HStack(spacing: 5) {
-                        ForEach(Array(card.palette.prefix(6).enumerated()), id: \.offset) { _, swatch in
-                            RoundedRectangle(cornerRadius: 3)
-                                .fill(swatch.color)
-                                .frame(height: 26)
-                        }
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, geo.size.height * 0.05)
-                }
             }
         }
     }

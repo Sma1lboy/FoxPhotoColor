@@ -85,16 +85,13 @@ struct ExportOptionsView: View {
         GeometryReader { geo in
             let size = ratio.size
             let scale = min(geo.size.width / size.width, geo.size.height / size.height)
-            ZStack {
-                CanvasBackground(color: card.background)
-                CardView(card: card, image: image, showsPaletteStrip: showPaletteStrip)
-            }
-            .frame(width: size.width, height: size.height)
-            .scaleEffect(scale)
-            .frame(width: geo.size.width, height: geo.size.height)
-            .clipShape(RoundedRectangle(cornerRadius: 10 / scale))
-            .shadow(color: .black.opacity(0.18), radius: 18, y: 8)
-            .animation(.spring(response: 0.4, dampingFraction: 1.0), value: ratio)
+            PosterView(card: card, image: image, showsPaletteStrip: showPaletteStrip)
+                .frame(width: size.width, height: size.height)
+                .clipShape(RoundedRectangle(cornerRadius: 10 / scale))
+                .scaleEffect(scale)
+                .frame(width: geo.size.width, height: geo.size.height)
+                .shadow(color: .black.opacity(0.18), radius: 18, y: 8)
+                .animation(.spring(response: 0.4, dampingFraction: 1.0), value: ratio)
         }
     }
 }
