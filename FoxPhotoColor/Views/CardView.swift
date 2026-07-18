@@ -23,6 +23,11 @@ struct CanvasBackground: View {
 struct CardView: View {
     let card: ColorCard
     let image: UIImage?
+    /// Frozen layout reference. The card's slots are fractions of this, NOT of
+    /// a live GeometryReader — during the dismiss drag the safe-area geometry
+    /// mutates and a live reader would re-layout the card mid-gesture (photo
+    /// visibly lagging the title zone).
+    var screenSize: CGSize = UIScreen.main.bounds.size
     /// Tap on the colored zone (outside the title) cycles the background
     /// through the palette; on-screen only.
     var onCycleColor: (() -> Void)? = nil
@@ -37,36 +42,33 @@ struct CardView: View {
     @State private var playToken = 0
 
     var body: some View {
-        GeometryReader { geo in
-            // Fixed card composition: top at 17% of the screen, a 24.9%-of-
-            // screen title zone, a 39%-of-screen photo slot — and the card
-            // ENDS at the photo's bottom edge (no colored zone below it).
-            // Photos aspect-fill and center-crop into the slot, so the card
-            // footprint never changes with the photo's aspect ratio.
-            let cardWidth = geo.size.width - 30
-            let cardTop = geo.size.height * 0.17
-            let titleZone = geo.size.height * 0.249
-            let photoHeight = geo.size.height * 0.39
+        // Fixed card composition against the frozen screen size: top at 19%,
+        // a 22%-of-screen title zone, a 34%-of-screen photo slot — the card
+        // ENDS at the photo's bottom edge. Photos aspect-fill and center-crop
+        // into the slot, so the footprint never changes with aspect ratio.
+        let cardWidth = screenSize.width - 40
+        let cardTop = screenSize.height * 0.19
+        let titleZone = screenSize.height * 0.22
+        let photoHeight = screenSize.height * 0.34
+
+        VStack(spacing: 0) {
+            Spacer().frame(height: cardTop)
 
             VStack(spacing: 0) {
-                Spacer().frame(height: cardTop)
-
-                VStack(spacing: 0) {
-                    titleBlock
-                        .frame(width: cardWidth, height: titleZone)
-                    photoView(width: cardWidth, height: photoHeight)
-                }
-                .frame(width: cardWidth, height: titleZone + photoHeight)
-                .background(card.background.color)
-                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-
-                Spacer(minLength: 0)
+                titleBlock
+                    .frame(width: cardWidth, height: titleZone)
+                photoView(width: cardWidth, height: photoHeight)
             }
-            .frame(maxWidth: .infinity)
-            .task(id: card.videoFileName) {
-                guard let loadLivePhoto else { return }
-                livePhoto = await loadLivePhoto()
-            }
+            .frame(width: cardWidth, height: titleZone + photoHeight)
+            .background(card.background.color)
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .task(id: card.videoFileName) {
+            guard let loadLivePhoto else { return }
+            livePhoto = await loadLivePhoto()
         }
     }
 
