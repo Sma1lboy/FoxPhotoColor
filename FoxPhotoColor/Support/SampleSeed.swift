@@ -10,10 +10,15 @@ enum SampleSeed {
     static func seedIfNeeded(into store: CardStore) {
         guard ProcessInfo.processInfo.environment["FPC_SEED"] == "1",
               store.cards.isEmpty else { return }
+        // Demo camera info so Moment Card screenshots exercise the metadata block.
+        let demoCamera = CameraInfo(model: "iPhone 16 Pro", fNumber: 1.8,
+                                    exposureSeconds: 1.0 / 184.0, iso: 100,
+                                    altitude: 4, headingDegrees: 292)
         for spec in specs.reversed() {
             let image = render(spec)
             let palette = PaletteExtractor.extract(from: image)
-            store.add(image: image, title: spec.title, timeText: spec.time, palette: palette)
+            store.add(image: image, title: spec.title, timeText: spec.time,
+                      palette: palette, camera: demoCamera)
         }
     }
 

@@ -177,6 +177,134 @@
         }
       }
     },
+    "direction.e": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "East"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "东方"
+          }
+        }
+      }
+    },
+    "direction.n": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "North"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "北方"
+          }
+        }
+      }
+    },
+    "direction.ne": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Northeast"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "东北方"
+          }
+        }
+      }
+    },
+    "direction.nw": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Northwest"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "西北方"
+          }
+        }
+      }
+    },
+    "direction.s": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "South"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "南方"
+          }
+        }
+      }
+    },
+    "direction.se": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Southeast"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "东南方"
+          }
+        }
+      }
+    },
+    "direction.sw": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Southwest"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "西南方"
+          }
+        }
+      }
+    },
+    "direction.w": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "West"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "西方"
+          }
+        }
+      }
+    },
     "error.export_failed": {
       "localizations": {
         "en": {
@@ -349,6 +477,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "全部色卡"
+          }
+        }
+      }
+    },
+    "moment.altitude": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standing at %@ meters above the world"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拍摄于海拔 %@ 米"
+          }
+        }
+      }
+    },
+    "moment.captured_with": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Captured with %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "由 %@ 拍摄"
+          }
+        }
+      }
+    },
+    "moment.facing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Facing %@ during capture"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拍摄时面朝%@"
+          }
+        }
+      }
+    },
+    "moment.settings": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera settings: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相机参数:%@"
           }
         }
       }
@@ -561,6 +753,38 @@
         }
       }
     },
+    "settings.card.poetic": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Always use poetic titles"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "总是使用诗意标题"
+          }
+        }
+      }
+    },
+    "settings.card.poetic.desc": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prefer the AI poetic title even when GPS is available"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有 GPS 定位时也优先 AI 诗意标题"
+          }
+        }
+      }
+    },
     "settings.card.timeformat": {
       "localizations": {
         "en": {
@@ -653,6 +877,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "自适应背景与主色提取的极简海报"
+          }
+        }
+      }
+    },
+    "settings.mode.moment": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moment Card"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "时刻卡"
+          }
+        }
+      }
+    },
+    "settings.mode.moment.desc": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polaroid-style print with capture metadata"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拍立得风格,含拍摄参数与时间地点"
           }
         }
       }

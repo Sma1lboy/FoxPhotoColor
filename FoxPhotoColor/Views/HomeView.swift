@@ -16,6 +16,11 @@ struct HomeView: View {
     @State private var dragAxis: DragAxis = .undetermined
     @State private var panPreview: CGFloat = 0
 
+    @AppStorage("fpc.mode") private var modeRaw = CardMode.classic.rawValue
+    @AppStorage("fpc.alwaysPoeticTitle") private var alwaysPoeticTitle = false
+
+    private var mode: CardMode { CardMode(rawValue: modeRaw) ?? .classic }
+
     private enum DragAxis { case undetermined, vertical, horizontal, pan }
 
     @ScaledMetric(relativeTo: .headline) private var brandSize: CGFloat = 21
@@ -51,14 +56,23 @@ struct HomeView: View {
                 TabView(selection: $selection) {
                     ForEach(store.cards) { card in
                         let isCurrent = (selection ?? store.cards.first?.id) == card.id
-                        CardView(card: card,
-                                 image: store.image(for: card),
-                                 panPreview: isCurrent ? panPreview : 0,
-                                 onCycleColor: { cycleColor(card) },
-                                 loadLivePhoto: { await store.loadLivePhoto(for: card) },
-                                 onTitleTap: { beginRename(card) },
-                                 onExport: { export(card) },
-                                 onDelete: { deleteCard(card) })
+                        Group {
+                            if mode == .moment {
+                                MomentCardView(card: card,
+                                               image: store.image(for: card),
+                                               onCycleColor: { cycleColor(card) },
+                                               onTitleTap: { beginRename(card) })
+                            } else {
+                                CardView(card: card,
+                                         image: store.image(for: card),
+                                         panPreview: isCurrent ? panPreview : 0,
+                                         onCycleColor: { cycleColor(card) },
+                                         loadLivePhoto: { await store.loadLivePhoto(for: card) },
+                                         onTitleTap: { beginRename(card) },
+                                         onExport: { export(card) },
+                                         onDelete: { deleteCard(card) })
+                            }
+                        }
                             // Reference proportions are fractions of the full
                             // screen — let each page's geometry span it.
                             .ignoresSafeArea()
@@ -140,6 +154,10 @@ struct HomeView: View {
             }
             if env["FPC_SETTINGS"] == "1" {
                 showSettings = true
+            }
+            // FPC_MODE=classic|moment: force a poster style for screenshots.
+            if let raw = env["FPC_MODE"], CardMode(rawValue: raw) != nil {
+                modeRaw = raw
             }
         }
         .onChange(of: pickerItem) { _, newItem in
@@ -272,7 +290,8 @@ struct HomeView: View {
         var newCard: ColorCard?
         withAnimation(uiAnimation) {
             if let card = store.add(image: image, originalData: data,
-                                    title: title, timeText: timeText, palette: palette) {
+                                    title: title, timeText: timeText, palette: palette,
+                                    camera: metadata.camera) {
                 selection = card.id
                 newCard = card
             }
@@ -285,7 +304,9 @@ struct HomeView: View {
         // lookup was in flight is never clobbered.
         Task {
             var newTitle: String?
-            if let coordinate = metadata.coordinate {
+            // "Always poetic" setting: skip the place name and let the AI title
+            // win even when GPS is present (mirrors the reference's toggle).
+            if !alwaysPoeticTitle, let coordinate = metadata.coordinate {
                 newTitle = await PhotoMetadataParser.placeName(for: coordinate)
             }
             if newTitle == nil {
@@ -323,7 +344,8 @@ struct HomeView: View {
                 if dragAxis == .undetermined {
                     if abs(value.translation.width) > abs(value.translation.height) {
                         dragAxis = .horizontal
-                    } else if CardView.photoRect(in: UIScreen.main.bounds.size)
+                    } else if mode == .classic,
+                              CardView.photoRect(in: UIScreen.main.bounds.size)
                                 .contains(value.startLocation),
                               CardView.panOverflow(image: store.image(for: card),
                                                    screenSize: UIScreen.main.bounds.size) > 0 {

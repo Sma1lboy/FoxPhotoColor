@@ -56,3 +56,6 @@ scripts/harness.sh all --seed     # build+run+capture 一条龙
 - [ ] R14: 设置页扩充(时间格式 12/24h、默认导出比例、清除全部数据)
 - [ ] R15: iPad 适配(TARGETED_DEVICE_FAMILY 1,2 + 布局)
 - [ ] R16: CloudKit 同步(多设备色卡库)
+- [x] R17: AI 诗意标题(Support/AITitle.swift 走本地 CPA http://127.0.0.1:8317 /v1/messages,兜底链 GPS 地名 → AI → 默认;env: FPC_AI_BASE_URL/FPC_AI_KEY/FPC_AI_MODEL)
+- [x] R18a: 模式基础设施 + Moment Card(CardMode/fpc.mode、MomentCardView 拍立得卡 + 相机 EXIF 元数据区 + 呼吸 blob 动效、设置页模式选择已接线、诗意标题优先开关 fpc.alwaysPoeticTitle、FPC_MODE 钩子;seed 卡带演示相机数据)
+- [ ] R18b: 其余模式(Bubble Stamp / Magic Journal / Spectrum Wallpaper);Moment Card 导出仍走经典渲染,待接

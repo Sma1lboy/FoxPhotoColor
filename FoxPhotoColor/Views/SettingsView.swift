@@ -8,6 +8,9 @@ struct SettingsView: View {
     @AppStorage("fpc.use24HourTime") private var use24HourTime = true
     @AppStorage("fpc.livePhotoEnabled") private var livePhotoEnabled = true
     @AppStorage("fpc.defaultExportAspect") private var defaultExportAspect = "full"
+    // 已接线的偏好
+    @AppStorage("fpc.mode") private var modeRaw = CardMode.classic.rawValue
+    @AppStorage("fpc.alwaysPoeticTitle") private var alwaysPoeticTitle = false
 
     private enum Metrics {
         static let pageBackground = Color(white: 0.07)
@@ -58,19 +61,38 @@ struct SettingsView: View {
 
     private var modeSection: some View {
         section(header: "settings.section.mode") {
-            row(icon: "rectangle.portrait",
-                title: "settings.mode.classic",
-                subtitle: "settings.mode.classic.desc") {
-                Image(systemName: "checkmark")
-                    .font(.system(size: 17, weight: .bold))
-                    .foregroundStyle(Metrics.accent)
-            }
+            modeRow(.classic, icon: "rectangle.portrait",
+                    title: "settings.mode.classic",
+                    subtitle: "settings.mode.classic.desc")
+            separator
+            modeRow(.moment, icon: "photo.artframe",
+                    title: "settings.mode.moment",
+                    subtitle: "settings.mode.moment.desc")
             separator
             row(icon: "sparkles",
                 title: "settings.mode.more",
                 subtitle: "settings.mode.more.desc",
                 dimmed: true) { EmptyView() }
         }
+    }
+
+    private func modeRow(_ target: CardMode, icon: String,
+                         title: LocalizedStringKey,
+                         subtitle: LocalizedStringKey) -> some View {
+        Button {
+            withAnimation(.spring(response: 0.3, dampingFraction: 1.0)) {
+                modeRaw = target.rawValue
+            }
+        } label: {
+            row(icon: icon, title: title, subtitle: subtitle) {
+                if modeRaw == target.rawValue {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundStyle(Metrics.accent)
+                }
+            }
+        }
+        .buttonStyle(.plain)
     }
 
     private var cardSection: some View {
@@ -88,6 +110,14 @@ struct SettingsView: View {
                 title: "settings.card.livephoto",
                 subtitle: "settings.pref.pending") {
                 Toggle("", isOn: $livePhotoEnabled)
+                    .labelsHidden()
+                    .tint(Metrics.accent)
+            }
+            separator
+            row(icon: "quote.opening",
+                title: "settings.card.poetic",
+                subtitle: "settings.card.poetic.desc") {
+                Toggle("", isOn: $alwaysPoeticTitle)
                     .labelsHidden()
                     .tint(Metrics.accent)
             }

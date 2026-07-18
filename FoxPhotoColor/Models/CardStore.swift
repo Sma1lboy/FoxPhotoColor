@@ -40,7 +40,8 @@ final class CardStore: ObservableObject {
     @discardableResult
     func add(image: UIImage,
              originalData: Data? = nil,
-             title: String, timeText: String, palette: ExtractedPalette) -> ColorCard? {
+             title: String, timeText: String, palette: ExtractedPalette,
+             camera: CameraInfo? = nil) -> ColorCard? {
         // Persist the ORIGINAL bytes when available: re-encoding via jpegData
         // strips EXIF and the Apple content identifier that pairs a Live
         // Photo's still with its video — without it, post-relaunch rebuild fails.
@@ -68,7 +69,8 @@ final class CardStore: ObservableObject {
                              imageFileName: fileName,
                              background: palette.background,
                              accent: palette.accent,
-                             palette: palette.swatches)
+                             palette: palette.swatches,
+                             camera: camera)
         if let display = Self.downsample(data: data) {
             imageCache.setObject(display, forKey: card.id as NSUUID)
         }

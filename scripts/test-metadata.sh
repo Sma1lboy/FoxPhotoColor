@@ -60,5 +60,5 @@ assert(meta2.creationDate == nil, "no EXIF date -> nil")
 print("PhotoMetadataParser self-check: OK")
 EOF
 
-swiftc -o "$TMP/check" FoxPhotoColor/Support/PhotoMetadata.swift "$TMP/main.swift"
+swiftc -o "$TMP/check" FoxPhotoColor/Models/CameraInfo.swift FoxPhotoColor/Support/PhotoMetadata.swift "$TMP/main.swift"
 "$TMP/check" "$TMP/probe.jpg"

@@ -55,6 +55,13 @@ struct RGBAColor: Codable, Equatable, Hashable {
     }
 }
 
+/// Poster style for the main card browser. Raw values are persisted in
+/// UserDefaults ("fpc.mode") — don't rename cases.
+enum CardMode: String, CaseIterable {
+    case classic
+    case moment
+}
+
 /// One generated color card: a photo plus its derived palette and caption.
 struct ColorCard: Identifiable, Codable, Equatable {
     var id: UUID
@@ -71,6 +78,9 @@ struct ColorCard: Identifiable, Codable, Equatable {
     /// -1 (show top) ... 1 (show bottom); nil/0 = centered. Optional so cards
     /// saved before this field decode fine.
     var photoPanY: Double?
+    /// EXIF camera details for the Moment Card metadata block. Optional so
+    /// cards saved before this field decode fine.
+    var camera: CameraInfo?
 
     init(id: UUID = UUID(),
          title: String,
@@ -80,7 +90,8 @@ struct ColorCard: Identifiable, Codable, Equatable {
          videoFileName: String? = nil,
          background: RGBAColor,
          accent: RGBAColor,
-         palette: [RGBAColor]) {
+         palette: [RGBAColor],
+         camera: CameraInfo? = nil) {
         self.id = id
         self.title = title
         self.timeText = timeText
@@ -90,5 +101,6 @@ struct ColorCard: Identifiable, Codable, Equatable {
         self.background = background
         self.accent = accent
         self.palette = palette
+        self.camera = camera
     }
 }
