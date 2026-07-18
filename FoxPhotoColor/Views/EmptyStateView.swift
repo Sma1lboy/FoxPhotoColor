@@ -95,33 +95,28 @@ struct FoxMark: View {
     var body: some View {
         FoxSilhouette()
             .fill(Color(red: 0.89, green: 0.36, blue: 0.16))
+            .aspectRatio(1.05, contentMode: .fit)
     }
 }
 
-/// Detail-free fox head silhouette (two ears + rounded face wedge), usable as
-/// a tinted shadow layer.
+/// Detail-free angular fox head (the simple badge glyph: two ears with a
+/// notch between, cheeks tapering to a pointed chin), usable as a tinted
+/// shadow layer.
 struct FoxSilhouette: Shape {
     func path(in rect: CGRect) -> Path {
         let w = rect.width, h = rect.height
+        func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
+            CGPoint(x: rect.minX + w * x, y: rect.minY + h * y)
+        }
         var p = Path()
-        // Left ear
-        p.move(to: CGPoint(x: rect.minX + w * 0.08, y: rect.minY + h * 0.02))
-        p.addLine(to: CGPoint(x: rect.minX + w * 0.34, y: rect.minY + h * 0.30))
-        p.addLine(to: CGPoint(x: rect.minX + w * 0.10, y: rect.minY + h * 0.42))
-        p.closeSubpath()
-        // Right ear
-        p.move(to: CGPoint(x: rect.minX + w * 0.92, y: rect.minY + h * 0.02))
-        p.addLine(to: CGPoint(x: rect.minX + w * 0.66, y: rect.minY + h * 0.30))
-        p.addLine(to: CGPoint(x: rect.minX + w * 0.90, y: rect.minY + h * 0.42))
-        p.closeSubpath()
-        // Face: rounded wedge tapering to the muzzle.
-        p.move(to: CGPoint(x: rect.minX + w * 0.06, y: rect.minY + h * 0.30))
-        p.addQuadCurve(to: CGPoint(x: rect.minX + w * 0.94, y: rect.minY + h * 0.30),
-                       control: CGPoint(x: rect.midX, y: rect.minY + h * 0.14))
-        p.addQuadCurve(to: CGPoint(x: rect.midX, y: rect.minY + h * 0.98),
-                       control: CGPoint(x: rect.minX + w * 0.96, y: rect.minY + h * 0.78))
-        p.addQuadCurve(to: CGPoint(x: rect.minX + w * 0.06, y: rect.minY + h * 0.30),
-                       control: CGPoint(x: rect.minX + w * 0.04, y: rect.minY + h * 0.78))
+        p.move(to: pt(0.04, 0.02))   // left ear tip
+        p.addLine(to: pt(0.32, 0.24)) // inner slope of left ear
+        p.addLine(to: pt(0.50, 0.16)) // notch between the ears
+        p.addLine(to: pt(0.68, 0.24)) // inner slope of right ear
+        p.addLine(to: pt(0.96, 0.02)) // right ear tip
+        p.addLine(to: pt(1.00, 0.42)) // right cheek
+        p.addLine(to: pt(0.50, 1.00)) // chin point
+        p.addLine(to: pt(0.00, 0.42)) // left cheek
         p.closeSubpath()
         return p
     }
