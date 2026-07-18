@@ -5,8 +5,8 @@ iOS (SwiftUI, iOS 17+) 色卡生成 app,参考 PhotoColors:选照片 → k-means
 ## 设计
 
 - 设计规范:`.claude/skills/apple-design/SKILL.md`(弹簧动画默认 critically damped `response 0.3–0.5, damping 1.0`;按压反馈用 `PressableButtonStyle`;背景色切换用 spring 过渡)。
-- 参考截图:`~/Downloads/IMG_2504-2507.PNG`(App Store 截图,布局与配色的真相源)。
-- 布局基准:标题块占屏高上部 34% 居中,照片 `scaledToFit` 最大高 42%,左右留白 24pt。
+- 参考截图:`~/Downloads/IMG_2504-2507.PNG` + 特写 `IMG_2530-2533.PNG`(布局与配色的真相源)。
+- 布局基准(2530-2533 实测):**海报是内嵌圆角卡片**——外层画布 = 卡片色同色相压暗一档(`RGBAColor.outerBackground`);卡片占屏高 12.5%→72.5%、左右 15pt、圆角 34 continuous;标题居中在卡片上部色块区;照片贴满卡片宽度、底边与卡片底对齐、被圆角裁切,高度按宽高比夹在卡片高的 38-64%。空状态页无卡片,全屏渐变。
 
 ## 构建 & 调试 harness(重要:全部自助,不需要人工点模拟器)
 
