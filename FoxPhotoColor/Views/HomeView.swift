@@ -41,7 +41,9 @@ struct HomeView: View {
             } else {
                 TabView(selection: $selection) {
                     ForEach(store.cards) { card in
-                        CardView(card: card, image: store.image(for: card))
+                        CardView(card: card,
+                                 image: store.image(for: card),
+                                 onSwatchTap: { swatch in recolor(card, with: swatch) })
                             .tag(Optional(card.id))
                             .contextMenu {
                                 Button {
@@ -81,11 +83,23 @@ struct HomeView: View {
             }
         }
         .onAppear {
-            // QA harness hook: FPC_SELECT=<index> jumps straight to a card so
-            // headless screenshots can reach every card without gestures.
-            if let raw = ProcessInfo.processInfo.environment["FPC_SELECT"],
+            // QA harness hooks (headless sims can't tap): FPC_SELECT=<index>
+            // jumps to a card; FPC_RECOLOR=<card>:<swatch> exercises the real
+            // recolor path so screenshots can verify it.
+            let env = ProcessInfo.processInfo.environment
+            if let raw = env["FPC_SELECT"],
                let idx = Int(raw), store.cards.indices.contains(idx) {
                 selection = store.cards[idx].id
+            }
+            if let raw = env["FPC_RECOLOR"] {
+                let parts = raw.split(separator: ":").compactMap { Int($0) }
+                if parts.count == 2, store.cards.indices.contains(parts[0]) {
+                    let card = store.cards[parts[0]]
+                    if card.palette.indices.contains(parts[1]) {
+                        selection = card.id
+                        recolor(card, with: card.palette[parts[1]])
+                    }
+                }
             }
         }
         .onChange(of: pickerItem) { _, newItem in
@@ -172,14 +186,27 @@ struct HomeView: View {
                 store.errorMessage = String(localized: "error.import_failed")
                 return
             }
-            let palette = await Task.detached(priority: .userInitiated) {
-                PaletteExtractor.extract(from: image)
+            let (palette, metadata) = await Task.detached(priority: .userInitiated) {
+                (PaletteExtractor.extract(from: image), PhotoMetadataParser.parse(from: data))
             }.value
-            let timeText = Date.now.formatted(date: .omitted, time: .shortened)
+            let captureDate = metadata.creationDate ?? .now
+            let timeText = captureDate.formatted(date: .omitted, time: .shortened)
             let title = String(localized: "card.default_title")
+            var newCard: ColorCard?
             withAnimation(uiAnimation) {
                 if let card = store.add(image: image, title: title, timeText: timeText, palette: palette) {
                     selection = card.id
+                    newCard = card
+                }
+            }
+            // Card appears instantly; the geocoded place name pops in when the
+            // lookup lands (only if the user hasn't renamed it meanwhile).
+            if var card = newCard, let coordinate = metadata.coordinate,
+               let place = await PhotoMetadataParser.placeName(for: coordinate),
+               store.card(id: card.id)?.title == title {
+                card.title = place
+                withAnimation(uiAnimation) {
+                    store.update(card)
                 }
             }
         }
@@ -192,6 +219,16 @@ struct HomeView: View {
         }
         let poster = CardPosterRenderer.render(card: card, image: image)
         shareItem = ShareImage(image: poster)
+    }
+
+    private func recolor(_ card: ColorCard, with swatch: RGBAColor) {
+        var updated = card
+        let derived = PaletteExtractor.rederive(from: swatch, palette: card.palette)
+        updated.background = derived.background
+        updated.accent = derived.accent
+        withAnimation(uiAnimation) {
+            store.update(updated)
+        }
     }
 
     private func deleteCard(_ card: ColorCard) {

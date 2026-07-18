@@ -97,6 +97,12 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "地点名称" } }
       }
     },
+    "swatch.row.a11y" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Palette colors. Pick one as the card background." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "调色板颜色，选择一个作为色卡背景。" } }
+      }
+    },
     "settings.about" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "About" } },

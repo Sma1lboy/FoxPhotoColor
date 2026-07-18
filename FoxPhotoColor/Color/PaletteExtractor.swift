@@ -27,6 +27,14 @@ enum PaletteExtractor {
         return ExtractedPalette(background: background, accent: accent, swatches: swatches)
     }
 
+    /// Re-derive background + accent when the user picks a different palette
+    /// swatch as the card's base color.
+    static func rederive(from swatch: RGBAColor, palette: [RGBAColor]) -> (background: RGBAColor, accent: RGBAColor) {
+        let background = deriveBackground(from: swatch)
+        let accent = deriveAccent(candidates: palette.isEmpty ? [swatch] : palette, background: background)
+        return (background, accent)
+    }
+
     // MARK: - Derivation
 
     /// Mute the dominant color into a poster background: cap saturation, keep the

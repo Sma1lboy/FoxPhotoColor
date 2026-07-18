@@ -33,7 +33,7 @@ scripts/harness.sh all --seed     # build+run+capture 一条龙
 ## 迭代 backlog(按轮次推进,完成即勾)
 
 - [x] R1: 工程脚手架 + 提色管线 + 卡片/空状态/设置/导出 + harness + i18n
-- [ ] R2: 视觉对齐参考图(截图对比调 spacing/字体/muting),app 图标,状态栏适配
+- [x] R2: 视觉对齐参考图 + app 图标 + 状态栏适配 + 审查修复(数据丢失防护/NSCache 降采样/accent 感知亮度/Reduce Motion/删卡 selection)
 - [ ] R3: 从 PHAsset 读取拍摄时间/地点自动命名(反向地理编码)
 - [ ] R4: 调色板 UI(卡片下滑出 swatches,可选任一色作背景)
 - [ ] R5: 卡片切换/删除的流体动画与手势(velocity handoff、rubber-band)
