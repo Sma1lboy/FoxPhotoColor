@@ -168,17 +168,23 @@ struct FloatingBubblesView: View {
         .foregroundStyle(.white)
         .padding(.horizontal, 22)
         .padding(.vertical, 12)
-        .background {
-            if flatChrome {
-                Capsule().fill(Color.black.opacity(0.32))
-            } else {
-                Capsule().fill(.ultraThinMaterial)
-            }
-        }
+        .modifier(GlassStamp(flat: flatChrome))
         .environment(\.colorScheme, .dark)
         .position(x: size.width / 2, y: size.height * 0.88)
         .onTapGesture { onTitleTap() }
         .accessibilityElement(children: .combine)
         .accessibilityHint(Text("card.rename.a11y"))
+    }
+}
+
+/// Liquid Glass stamp on iOS 26; flat fill for exports; material otherwise.
+private struct GlassStamp: ViewModifier {
+    let flat: Bool
+    func body(content: Content) -> some View {
+        if flat {
+            content.background(Capsule().fill(Color.black.opacity(0.32)))
+        } else {
+            content.fpcGlass(in: Capsule())
+        }
     }
 }

@@ -313,7 +313,7 @@ struct HomeView: View {
             .font(.system(size: 19, weight: .light))
             .foregroundStyle(chromeForeground)
             .frame(width: 46, height: 46)
-            .background(GlassCircle(isDark: chromeIsDark))
+            .modifier(LiquidGlassCircle(isDark: chromeIsDark))
             .contentShape(Circle())
     }
 

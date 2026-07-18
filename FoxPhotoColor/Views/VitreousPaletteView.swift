@@ -67,15 +67,21 @@ struct VitreousPaletteView: View {
         .padding(.vertical, 20)
         .padding(.horizontal, 18)
         .frame(width: width)
-        .background {
-            if flatChrome {
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(Color.white.opacity(0.28))
-            } else {
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(.ultraThinMaterial)
-            }
-        }
+        .modifier(GlassPanel(flat: flatChrome))
         .environment(\.colorScheme, .light)
+    }
+}
+
+/// Liquid Glass panel on iOS 26; flat fill for exports; material otherwise.
+private struct GlassPanel: ViewModifier {
+    let flat: Bool
+    func body(content: Content) -> some View {
+        if flat {
+            content.background(
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(Color.white.opacity(0.28)))
+        } else {
+            content.fpcGlass(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        }
     }
 }
