@@ -40,18 +40,19 @@ struct CardView: View {
 
     var body: some View {
         GeometryReader { geo in
-            // Reference proportions (measured off IMG_2531/2532): card top at
-            // 17% of the screen, a 24.9%-of-screen title zone, then the photo
-            // full-width at natural aspect. The card's bottom edge IS the
-            // photo's bottom edge (the card's 20pt corners clip the photo);
-            // below it the canvas wash runs to the screen bottom.
+            // Reference proportions (measured off IMG_2531/2532): a fixed-
+            // footprint card — top at 17% of the screen, 15pt side and bottom
+            // margins. Inside: a 24.9%-of-screen title zone, then the photo
+            // full-width at natural aspect with its own soft corners, then the
+            // card color continues to the card's bottom edge. Photos taller
+            // than the remaining space are center-cropped (aspect fill).
             let cardWidth = geo.size.width - 30
             let cardTop = geo.size.height * 0.17
+            let cardHeight = geo.size.height - cardTop - 15
             let titleZone = geo.size.height * 0.249
-            let maxPhotoHeight = geo.size.height - cardTop - titleZone - 15
             let photoHeight = photoHeight(cardWidth: cardWidth,
                                           minHeight: geo.size.height * 0.22,
-                                          maxHeight: maxPhotoHeight)
+                                          maxHeight: cardHeight - titleZone)
 
             VStack(spacing: 0) {
                 Spacer().frame(height: cardTop)
@@ -60,8 +61,10 @@ struct CardView: View {
                     titleBlock
                         .frame(width: cardWidth, height: titleZone)
                     photoView(width: cardWidth, height: photoHeight)
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    Spacer(minLength: 0)
                 }
-                .frame(width: cardWidth, height: titleZone + photoHeight)
+                .frame(width: cardWidth, height: cardHeight)
                 .background(card.background.color)
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
 
@@ -92,16 +95,18 @@ struct CardView: View {
     // whose composition must match its exported image; Dynamic Type applies
     // to the app chrome instead.
     private var titleBlock: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 13) {
             Text(card.title.uppercased())
-                .font(.system(size: 14, weight: .heavy))
-                .tracking(3.0)
-                // Reference keeps even long names on one line, shrinking to fit.
+                // Reference metrics ("SINGAPORE" in IMG_2532): 10.3pt cap
+                // height ≈ 15pt SF, heavy, wide tracking, one line shrunk to fit.
+                .font(.system(size: 15, weight: .heavy))
+                .tracking(3.2)
                 .lineLimit(1)
-                .minimumScaleFactor(0.55)
+                .minimumScaleFactor(0.5)
                 .multilineTextAlignment(.center)
+                .opacity(0.92)
             Text(card.timeText.uppercased())
-                .font(.system(size: 9.5, weight: .semibold))
+                .font(.system(size: 9, weight: .semibold))
                 .tracking(2.2)
                 .opacity(0.85)
         }

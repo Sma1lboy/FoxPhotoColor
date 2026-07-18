@@ -39,8 +39,7 @@ struct EmptyStateView: View {
 
                 PhotosPicker(selection: $pickerItem, matching: .images, photoLibrary: .shared()) {
                     ZStack {
-                        Circle()
-                            .fill(Color.white.opacity(0.14))
+                        GlassCircle()
                         Image(systemName: "plus")
                             .font(.system(size: 26, weight: .regular))
                             .foregroundStyle(.white.opacity(0.95))
@@ -71,6 +70,32 @@ struct EmptyStateView: View {
                 .opacity(0.9)
         }
         .frame(width: 64, height: 96)
+    }
+}
+
+/// Apple-glass circular button chrome, like the reference app's buttons: a
+/// material blur with a light-from-above rim (bright top edge fading out) and
+/// a faint inner sheen.
+struct GlassCircle: View {
+    var isDark = false
+
+    var body: some View {
+        let rim = isDark ? Color.black : Color.white
+        Circle()
+            .fill(.ultraThinMaterial)
+            .overlay(
+                // Sheen: subtle wash that reads as light hitting the glass.
+                Circle().fill(
+                    LinearGradient(colors: [rim.opacity(0.16), rim.opacity(0.02)],
+                                   startPoint: .top, endPoint: .bottom))
+            )
+            .overlay(
+                // Rim: brighter along the top edge, nearly gone at the bottom.
+                Circle().strokeBorder(
+                    LinearGradient(colors: [rim.opacity(0.55), rim.opacity(0.08)],
+                                   startPoint: .top, endPoint: .bottom),
+                    lineWidth: 1)
+            )
     }
 }
 

@@ -199,14 +199,7 @@ struct HomeView: View {
             .font(.system(size: 19, weight: .light))
             .foregroundStyle(chromeForeground)
             .frame(width: 46, height: 46)
-            // Real material chrome (skill §12), not a flat tint — adapts with
-            // the per-card color scheme. Thin ring like the reference buttons.
-            .background(.ultraThinMaterial, in: Circle())
-            .overlay(
-                Circle().strokeBorder(
-                    (chromeIsDark ? Color.black : Color.white).opacity(0.22),
-                    lineWidth: 1)
-            )
+            .background(GlassCircle(isDark: chromeIsDark))
             .contentShape(Circle())
     }
 
