@@ -16,6 +16,8 @@ struct WidgetSnapshot: Codable {
     var timeText: String
     var bg: WidgetRGBA
     var accent: WidgetRGBA
+    /// Deep-link target; optional so pre-R13 snapshots still decode.
+    var id: UUID?
 }
 
 private let appGroupID = "group.me.sma1lboy.foxphotocolor"
@@ -59,13 +61,40 @@ struct CardWidgetView: View {
     var body: some View {
         Group {
             if let snapshot = entry.snapshot {
-                card(snapshot)
+                if family == .accessoryRectangular {
+                    lockScreenCard(snapshot)
+                } else {
+                    card(snapshot)
+                }
             } else {
                 emptyState
             }
         }
+        .widgetURL(deepLink)
         .containerBackground(entry.snapshot?.bg.color ?? Color(red: 0.42, green: 0.53, blue: 0.33),
                              for: .widget)
+    }
+
+    /// Tapping any family opens the exact card the widget shows.
+    private var deepLink: URL? {
+        guard let id = entry.snapshot?.id else { return nil }
+        return URL(string: "foxphotocolor://card/\(id.uuidString)")
+    }
+
+    /// Lock screen: vibrant material renders the text; no colors of our own.
+    private func lockScreenCard(_ snapshot: WidgetSnapshot) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(snapshot.title.uppercased())
+                .font(.system(size: 13, weight: .heavy))
+                .tracking(0.8)
+                .lineLimit(2)
+                .minimumScaleFactor(0.7)
+            Text(snapshot.timeText.uppercased())
+                .font(.system(size: 11, weight: .medium))
+                .tracking(1)
+                .opacity(0.8)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func card(_ snapshot: WidgetSnapshot) -> some View {
@@ -110,7 +139,7 @@ struct CardWidget: Widget {
         }
         .configurationDisplayName("widget.name")
         .description("widget.description")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular])
     }
 }
 

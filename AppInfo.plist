@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Widget 深链:foxphotocolor://card/<uuid>。其余键仍由
+	     GENERATE_INFOPLIST_FILE + INFOPLIST_KEY_* 生成合并。 -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>me.sma1lboy.foxphotocolor.deeplink</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>foxphotocolor</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
