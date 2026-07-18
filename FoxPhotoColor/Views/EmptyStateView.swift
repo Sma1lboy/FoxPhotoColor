@@ -25,6 +25,7 @@ struct EmptyStateView: View {
 
                 Text("empty.title")
                     .font(.system(size: titleSize, weight: .bold, design: .serif))
+                    .tracking(-0.5) // large display text wants negative tracking (skill §15)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.white)
                     .padding(.horizontal, 44)

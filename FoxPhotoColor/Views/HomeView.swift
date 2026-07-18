@@ -18,6 +18,8 @@ struct HomeView: View {
 
     private enum DragAxis { case undetermined, vertical, horizontal }
 
+    @ScaledMetric(relativeTo: .headline) private var brandSize: CGFloat = 19
+
     private var currentCard: ColorCard? {
         store.card(id: selection) ?? store.cards.first
     }
@@ -150,7 +152,7 @@ struct HomeView: View {
     private var topBar: some View {
         HStack(spacing: 12) {
             Text(verbatim: "FoxPhotoColor")
-                .font(.system(size: 19, weight: .bold))
+                .font(.system(size: brandSize, weight: .bold))
                 .foregroundStyle(chromeForeground)
             Spacer()
             if store.cards.count > 1 {
@@ -189,10 +191,9 @@ struct HomeView: View {
             .font(.system(size: 15, weight: .semibold))
             .foregroundStyle(chromeForeground)
             .frame(width: 38, height: 38)
-            .background(
-                Circle()
-                    .fill(chromeIsDark ? Color.black.opacity(0.08) : Color.white.opacity(0.16))
-            )
+            // Real material chrome (skill §12), not a flat tint — adapts with
+            // the per-card color scheme.
+            .background(.ultraThinMaterial, in: Circle())
             .contentShape(Circle())
     }
 
@@ -287,8 +288,14 @@ struct HomeView: View {
                 if projected < commitThreshold, store.cards.count >= 1 {
                     commitDismiss(card, velocity: velocity)
                 } else {
+                    // Hand the release velocity into the snap-back too (skill
+                    // §5) — a plain spring here would hard-cut the finger's
+                    // momentum ("brick wall").
+                    let relativeVelocity = dragOffset != 0
+                        ? Double(velocity / (0 - dragOffset)) : 0
                     withAnimation(reduceMotion ? .easeOut(duration: 0.2)
-                                               : .spring(response: 0.4, dampingFraction: 1.0)) {
+                                               : .interpolatingSpring(stiffness: 260, damping: 32,
+                                                                      initialVelocity: relativeVelocity)) {
                         dragOffset = 0
                     }
                 }
@@ -345,7 +352,10 @@ struct HomeView: View {
             .foregroundStyle(.white)
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
-            .background(Capsule().fill(Color.black.opacity(0.72)))
+            // Dark material capsule (skill §12) — forced dark so the white
+            // text stays legible over any card color.
+            .background(.regularMaterial, in: Capsule())
+            .environment(\.colorScheme, .dark)
             // Sits above the swatch row so the two never overlap.
             .padding(.bottom, 96)
         }
