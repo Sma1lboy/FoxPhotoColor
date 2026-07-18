@@ -13,8 +13,13 @@ struct CardView: View {
     var showsPaletteStrip: Bool = false
     /// Async Live Photo loader; nil in export/poster contexts.
     var loadLivePhoto: (() async -> PHLivePhoto?)? = nil
+    /// Title-block actions (rename on tap, menu on long-press); nil in export.
+    var onTitleTap: (() -> Void)? = nil
+    var onExport: (() -> Void)? = nil
+    var onDelete: (() -> Void)? = nil
 
     @State private var livePhoto: PHLivePhoto?
+    @State private var playToken = 0
 
     var body: some View {
         GeometryReader { geo in
@@ -36,13 +41,29 @@ struct CardView: View {
                 .foregroundStyle(card.accent.color)
                 .padding(.horizontal, 36)
                 .frame(height: geo.size.height * 0.34)
+                .frame(maxWidth: .infinity)
+                .contentShape(Rectangle())
+                // Spatial mapping: the title block owns rename + card actions;
+                // the photo below owns Live Photo playback. No shared owners.
+                .onTapGesture { onTitleTap?() }
+                .contextMenu {
+                    if let onTitleTap {
+                        Button { onTitleTap() } label: { Label("action.rename", systemImage: "pencil") }
+                    }
+                    if let onExport {
+                        Button { onExport() } label: { Label("action.export", systemImage: "square.and.arrow.up") }
+                    }
+                    if let onDelete {
+                        Button(role: .destructive) { onDelete() } label: { Label("action.delete", systemImage: "trash") }
+                    }
+                }
 
                 if let image {
                     Group {
                         if let livePhoto {
-                            // Long-press plays; PHLivePhotoView owns the gesture.
-                            LivePhotoView(livePhoto: livePhoto)
+                            LivePhotoView(livePhoto: livePhoto, playToken: playToken)
                                 .aspectRatio(image.size, contentMode: .fit)
+                                .onTapGesture { playToken += 1 } // tap or long-press plays
                         } else {
                             Image(uiImage: image)
                                 .resizable()
@@ -54,10 +75,15 @@ struct CardView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 2))
                     .overlay(alignment: .topLeading) {
                         if livePhoto != nil {
+                            // White glyph on a material chip — legible over any
+                            // photo corner (skill §12), unlike the accent color.
                             Image(systemName: "livephoto")
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(card.accent.color.opacity(0.9))
-                                .padding(8)
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .padding(5)
+                                .background(.ultraThinMaterial, in: Circle())
+                                .environment(\.colorScheme, .dark)
+                                .padding(6)
                                 .accessibilityLabel(Text("card.live.a11y"))
                         }
                     }
@@ -90,9 +116,11 @@ struct CardView: View {
     }
 }
 
-/// PHLivePhotoView wrapper — long-press playback comes built in.
+/// PHLivePhotoView wrapper. Built-in long-press playback stays; bumping
+/// playToken triggers playback from a SwiftUI tap as well.
 private struct LivePhotoView: UIViewRepresentable {
     let livePhoto: PHLivePhoto
+    var playToken: Int = 0
 
     func makeUIView(context: Context) -> PHLivePhotoView {
         let view = PHLivePhotoView()
@@ -102,6 +130,16 @@ private struct LivePhotoView: UIViewRepresentable {
 
     func updateUIView(_ view: PHLivePhotoView, context: Context) {
         view.livePhoto = livePhoto
+        if context.coordinator.lastToken != playToken {
+            context.coordinator.lastToken = playToken
+            view.startPlayback(with: .full)
+        }
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
+    final class Coordinator {
+        var lastToken = 0
     }
 }
 

@@ -36,23 +36,19 @@ struct GridOverviewView: View {
 
     private func miniCard(_ card: ColorCard) -> some View {
         VStack(spacing: 6) {
-            VStack(spacing: 3) {
-                Text(card.title.uppercased())
-                    .font(.system(size: 9, weight: .heavy))
-                    .tracking(1.4)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.center)
-                Text(card.timeText.uppercased())
-                    .font(.system(size: 7, weight: .semibold))
-                    .tracking(1.2)
-                    .opacity(0.85)
-            }
-            .foregroundStyle(card.accent.color)
-            .padding(.horizontal, 10)
-            .padding(.top, 18)
+            // Grid cells are wayfinding chrome, not poster artifacts: one
+            // legible title line, no 7pt caption.
+            Text(card.title.uppercased())
+                .font(.system(size: 11, weight: .heavy))
+                .tracking(1.4)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(card.accent.color)
+                .padding(.horizontal, 10)
+                .padding(.top, 18)
 
             Spacer(minLength: 8)
-            if let image = store.image(for: card) {
+            if let image = store.thumbnail(for: card) {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()

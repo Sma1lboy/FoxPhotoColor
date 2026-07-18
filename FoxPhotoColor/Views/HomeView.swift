@@ -50,31 +50,14 @@ struct HomeView: View {
                         CardView(card: card,
                                  image: store.image(for: card),
                                  onSwatchTap: { swatch in recolor(card, with: swatch) },
-                                 loadLivePhoto: { await store.loadLivePhoto(for: card) })
+                                 loadLivePhoto: { await store.loadLivePhoto(for: card) },
+                                 onTitleTap: { beginRename(card) },
+                                 onExport: { export(card) },
+                                 onDelete: { deleteCard(card) })
                             .offset(y: isCurrent ? dragOffset : 0)
                             .opacity(isCurrent ? Double(1 - min(0.35, max(0, -dragOffset) / 900)) : 1)
                             .simultaneousGesture(dismissGesture(for: card))
                             .tag(Optional(card.id))
-                            .contextMenu {
-                                Button {
-                                    beginRename(card)
-                                } label: {
-                                    Label("action.rename", systemImage: "pencil")
-                                }
-                                Button {
-                                    export(card)
-                                } label: {
-                                    Label("action.export", systemImage: "square.and.arrow.up")
-                                }
-                                Button(role: .destructive) {
-                                    deleteCard(card)
-                                } label: {
-                                    Label("action.delete", systemImage: "trash")
-                                }
-                            }
-                            .onTapGesture {
-                                beginRename(card)
-                            }
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
@@ -231,14 +214,13 @@ struct HomeView: View {
             let (palette, metadata) = await Task.detached(priority: .userInitiated) {
                 (PaletteExtractor.extract(from: image), PhotoMetadataParser.parse(from: data))
             }.value
-            // Live Photos carry a paired video; grab it for on-card playback.
-            let livePhoto = try? await item.loadTransferable(type: PHLivePhoto.self)
             let captureDate = metadata.creationDate ?? .now
             let timeText = captureDate.formatted(date: .omitted, time: .shortened)
             let title = String(localized: "card.default_title")
             var newCard: ColorCard?
             withAnimation(uiAnimation) {
-                if let card = store.add(image: image, title: title, timeText: timeText, palette: palette) {
+                if let card = store.add(image: image, originalData: data,
+                                        title: title, timeText: timeText, palette: palette) {
                     selection = card.id
                     newCard = card
                 }
@@ -246,13 +228,16 @@ struct HomeView: View {
             if newCard != nil {
                 Haptics.success()
             }
-            if let created = newCard, let livePhoto {
-                store.attachLivePhoto(livePhoto, to: created)
-            }
-            // The card is on screen — release the spinner before the (slow,
-            // unbounded) geocode instead of at closure exit.
+            // The card is on screen — release the spinner before the slow tails
+            // (Live Photo video fetch, geocode) instead of at closure exit.
             isImporting = false
             pickerItem = nil
+            // Live Photos carry a paired video; fetch it AFTER the card is
+            // visible (it can be an iCloud download) and attach when it lands.
+            if let created = newCard,
+               let livePhoto = try? await item.loadTransferable(type: PHLivePhoto.self) {
+                store.attachLivePhoto(livePhoto, to: created)
+            }
             // Geocoded place name pops in when the lookup lands. Re-fetch the
             // live card and touch only the title, so a rename or recolor done
             // while the lookup was in flight is never clobbered.
@@ -346,6 +331,7 @@ struct HomeView: View {
                 Text("toast.deleted")
                     .font(.system(size: 14, weight: .medium))
                 Button {
+                    guard store.pendingDelete != nil else { return }
                     Haptics.success()
                     withAnimation(uiAnimation) {
                         store.undoDelete()

@@ -13,8 +13,12 @@ final class CardStore: ObservableObject {
     private let indexURL: URL
     /// Display-sized images only; NSCache evicts under memory pressure.
     private let imageCache = NSCache<NSUUID, UIImage>()
+    /// Small grid thumbnails — separate cache so grid scrolling never evicts
+    /// the pager's display images.
+    private let thumbCache = NSCache<NSUUID, UIImage>()
     private let livePhotoCache = NSCache<NSUUID, PHLivePhoto>()
     private static let displayMaxPixel: CGFloat = 1600
+    private static let thumbMaxPixel: CGFloat = 360
 
     init() {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -22,7 +26,9 @@ final class CardStore: ObservableObject {
         indexURL = directory.appendingPathComponent("cards.json")
         try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         imageCache.countLimit = 12
+        thumbCache.countLimit = 80
         load()
+        sweepOrphans()
     }
 
     func card(id: UUID?) -> ColorCard? {
@@ -31,12 +37,25 @@ final class CardStore: ObservableObject {
     }
 
     @discardableResult
-    func add(image: UIImage, title: String, timeText: String, palette: ExtractedPalette) -> ColorCard? {
-        let fileName = UUID().uuidString + ".jpg"
-        guard let data = image.jpegData(compressionQuality: 0.92) else {
+    func add(image: UIImage,
+             originalData: Data? = nil,
+             title: String, timeText: String, palette: ExtractedPalette) -> ColorCard? {
+        // Persist the ORIGINAL bytes when available: re-encoding via jpegData
+        // strips EXIF and the Apple content identifier that pairs a Live
+        // Photo's still with its video — without it, post-relaunch rebuild fails.
+        let data: Data
+        let ext: String
+        if let originalData {
+            data = originalData
+            ext = Self.isHEIC(originalData) ? "heic" : "jpg"
+        } else if let encoded = image.jpegData(compressionQuality: 0.92) {
+            data = encoded
+            ext = "jpg"
+        } else {
             errorMessage = String(localized: "error.import_failed")
             return nil
         }
+        let fileName = UUID().uuidString + "." + ext
         do {
             try data.write(to: directory.appendingPathComponent(fileName), options: .atomic)
         } catch {
@@ -124,6 +143,22 @@ final class CardStore: ObservableObject {
         UIImage(contentsOfFile: directory.appendingPathComponent(card.imageFileName).path)
     }
 
+    /// Grid-sized thumbnail (≤360px long edge).
+    func thumbnail(for card: ColorCard) -> UIImage? {
+        if let cached = thumbCache.object(forKey: card.id as NSUUID) { return cached }
+        let url = directory.appendingPathComponent(card.imageFileName)
+        guard let src = CGImageSourceCreateWithURL(url as CFURL, nil),
+              let image = Self.downsample(source: src, maxPixel: Self.thumbMaxPixel) else { return nil }
+        thumbCache.setObject(image, forKey: card.id as NSUUID)
+        return image
+    }
+
+    private static func isHEIC(_ data: Data) -> Bool {
+        // ISO-BMFF: 'ftyp' at offset 4, brand starting with 'hei'/'mif'
+        guard data.count > 12 else { return false }
+        return data[4...7].elementsEqual("ftyp".utf8)
+    }
+
     // MARK: - Live Photo
 
     /// Persist the paired video of a picker-provided Live Photo so playback
@@ -137,9 +172,24 @@ final class CardStore: ObservableObject {
         try? FileManager.default.removeItem(at: url)
         PHAssetResourceManager.default().writeData(for: paired, toFile: url, options: nil) { [weak self] error in
             Task { @MainActor in
-                guard error == nil, let self, var fresh = self.card(id: card.id) else { return }
-                fresh.videoFileName = name
-                self.update(fresh)
+                guard let self else { return }
+                guard error == nil else {
+                    try? FileManager.default.removeItem(at: url)
+                    return
+                }
+                if var fresh = self.card(id: card.id) {
+                    fresh.videoFileName = name
+                    self.update(fresh)
+                } else if let pending = self.pendingDelete, pending.card.id == card.id {
+                    // Card is inside the undo window; keep the pending copy in
+                    // sync so an undo restores the video too (and a purge
+                    // cleans the .mov up).
+                    var updated = pending.card
+                    updated.videoFileName = name
+                    self.pendingDelete = PendingDelete(card: updated, index: pending.index)
+                } else {
+                    try? FileManager.default.removeItem(at: url)
+                }
             }
         }
     }
@@ -188,6 +238,16 @@ final class CardStore: ObservableObject {
         }
     }
 
+    /// Delete files no card references — e.g. an app kill during the 5s undo
+    /// window leaves the purged card's .jpg/.mov behind.
+    private func sweepOrphans() {
+        let referenced = Set(cards.flatMap { [$0.imageFileName, $0.videoFileName].compactMap { $0 } })
+        let contents = (try? FileManager.default.contentsOfDirectory(atPath: directory.path)) ?? []
+        for file in contents where !referenced.contains(file) && !file.hasPrefix("cards.json") {
+            try? FileManager.default.removeItem(at: directory.appendingPathComponent(file))
+        }
+    }
+
     private func persist() {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
@@ -211,10 +271,10 @@ final class CardStore: ObservableObject {
         return downsample(source: src)
     }
 
-    private static func downsample(source: CGImageSource) -> UIImage? {
+    private static func downsample(source: CGImageSource, maxPixel: CGFloat = displayMaxPixel) -> UIImage? {
         let options: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
-            kCGImageSourceThumbnailMaxPixelSize: displayMaxPixel,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixel,
             kCGImageSourceCreateThumbnailWithTransform: true,
         ]
         guard let cg = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {

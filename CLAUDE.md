@@ -42,8 +42,9 @@ scripts/harness.sh all --seed     # build+run+capture 一条龙
 
 **↑ MVP 完成(R1-R7 全勾,10 commits)。继续迭代:**
 
-- [ ] R8: Live Photo 支持(参考 app 主打"Pick a Live Photo")+ simctl addmedia 真照片端到端验证
-- [ ] R9: 卡片总览(网格视图,长按重排/批量删)
-- [ ] R10: WidgetKit 小组件(随机/最新色卡上桌面)
-- [ ] R11: 性能与打磨(超大图提取耗时、启动时间、触觉反馈 §13)
-- [ ] R12: 真机验证 + TestFlight 准备(签名、隐私清单)
+- [x] R8: Live Photo 支持(picker 双载 PHLivePhoto,配对视频经 PHAssetResource 持久化,卡上长按播放 + livephoto 角标;真机 E2E 待 R12)
+- [x] R9: 网格总览(双列迷你海报,点击跳卡,FPC_GRID 钩子)
+- [x] R11a: 触觉反馈(建卡/换色/甩删/撤销四个提交时刻)
+- [ ] R10: WidgetKit 小组件(随机/最新色卡上桌面;需 pbxproj 加 extension target)
+- [ ] R11b: 性能(超大图提取耗时基准、启动时间)
+- [ ] R12: 真机验证(Live Photo 全链路)+ TestFlight 准备(签名、隐私清单)
