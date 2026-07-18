@@ -12,7 +12,7 @@ struct HomeView: View {
     @State private var renameTarget: ColorCard?
     @State private var renameText = ""
     @State private var isImporting = false
-    @State private var exportTarget: ColorCard?
+    @State private var shareImage: ShareImage?
     @State private var dragAxis: DragAxis = .undetermined
     @State private var panPreview: CGFloat = 0
 
@@ -241,10 +241,8 @@ struct HomeView: View {
             }
             .environmentObject(store)
         }
-        .sheet(item: $exportTarget) { card in
-            if let image = store.fullImage(for: card) ?? store.image(for: card) {
-                ExportOptionsView(card: card, image: image)
-            }
+        .sheet(item: $shareImage) { item in
+            ShareSheet(items: [item.image])
         }
         .alert("rename.message", isPresented: renameBinding) {
             TextField("rename.placeholder", text: $renameText)
@@ -419,12 +417,18 @@ struct HomeView: View {
         store.update(updated)
     }
 
+    /// Download taps skip any options page (reference behavior): render the
+    /// card exactly as displayed — current mode, screen proportions — and go
+    /// straight to the share sheet.
     private func export(_ card: ColorCard) {
-        guard store.fullImage(for: card) ?? store.image(for: card) != nil else {
+        guard let image = store.fullImage(for: card) ?? store.image(for: card) else {
             store.errorMessage = String(localized: "error.export_failed")
             return
         }
-        exportTarget = card
+        let poster = CardPosterRenderer.render(card: card, image: image,
+                                               ratio: .phone, mode: mode)
+        Haptics.light()
+        shareImage = ShareImage(image: poster)
     }
 
     // MARK: - Photo crop pan (the ONLY vertical drag on a card; the reference
