@@ -28,6 +28,9 @@ struct CardView: View {
     /// mutates and a live reader would re-layout the card mid-gesture (photo
     /// visibly lagging the title zone).
     var screenSize: CGSize = UIScreen.main.bounds.size
+    /// Live pan preview in points while the user drags the photo (HomeView
+    /// owns the gesture); committed into card.photoPanY on release.
+    var panPreview: CGFloat = 0
     /// Tap on the colored zone (outside the title) cycles the background
     /// through the palette; on-screen only.
     var onCycleColor: (() -> Void)? = nil
@@ -113,9 +116,30 @@ struct CardView: View {
         }
     }
 
+    /// The card's photo slot rect on screen — HomeView uses this to route
+    /// vertical drags that start on the photo into repositioning.
+    static func photoRect(in screenSize: CGSize) -> CGRect {
+        CGRect(x: 20,
+               y: screenSize.height * (0.19 + 0.22),
+               width: screenSize.width - 40,
+               height: screenSize.height * 0.34)
+    }
+
+    /// How far (in points) the aspect-filled photo overflows its slot
+    /// vertically; the pan range is ±overflow/2 around center.
+    static func panOverflow(image: UIImage?, screenSize: CGSize) -> CGFloat {
+        guard let image, image.size.width > 0 else { return 0 }
+        let slot = photoRect(in: screenSize)
+        let natural = slot.width * image.size.height / image.size.width
+        return max(0, natural - slot.height)
+    }
+
     @ViewBuilder
     private func photoView(width: CGFloat, height: CGFloat) -> some View {
         if let image {
+            let overflow = Self.panOverflow(image: image, screenSize: screenSize)
+            let base = CGFloat(card.photoPanY ?? 0) * overflow / 2
+            let pan = min(max(base + panPreview, -overflow / 2), overflow / 2)
             Group {
                 if let livePhoto {
                     LivePhotoView(livePhoto: livePhoto, playToken: playToken)
@@ -126,6 +150,8 @@ struct CardView: View {
                         .aspectRatio(contentMode: .fill)
                 }
             }
+            .frame(width: width, height: height)
+            .offset(y: pan)
             .frame(width: width, height: height)
             .clipped()
             .overlay(alignment: .topLeading) {

@@ -15,8 +15,9 @@ struct HomeView: View {
     @State private var exportTarget: ColorCard?
     @State private var dragOffset: CGFloat = 0
     @State private var dragAxis: DragAxis = .undetermined
+    @State private var panPreview: CGFloat = 0
 
-    private enum DragAxis { case undetermined, vertical, horizontal }
+    private enum DragAxis { case undetermined, vertical, horizontal, pan }
 
     @ScaledMetric(relativeTo: .headline) private var brandSize: CGFloat = 21
 
@@ -53,6 +54,7 @@ struct HomeView: View {
                         let isCurrent = (selection ?? store.cards.first?.id) == card.id
                         CardView(card: card,
                                  image: store.image(for: card),
+                                 panPreview: isCurrent ? panPreview : 0,
                                  onCycleColor: { cycleColor(card) },
                                  loadLivePhoto: { await store.loadLivePhoto(for: card) },
                                  onTitleTap: { beginRename(card) },
@@ -116,6 +118,17 @@ struct HomeView: View {
                         selection = card.id
                         recolor(card, with: card.palette[parts[1]])
                     }
+                }
+            }
+            // FPC_PAN=<index>:<-1..1> sets a card's photo crop position.
+            if let raw = env["FPC_PAN"] {
+                let parts = raw.split(separator: ":")
+                if parts.count == 2, let idx = Int(parts[0]), let v = Double(parts[1]),
+                   store.cards.indices.contains(idx) {
+                    var card = store.cards[idx]
+                    card.photoPanY = min(max(v, -1), 1)
+                    selection = card.id
+                    store.update(card)
                 }
             }
             if let raw = env["FPC_DELETE"],
@@ -262,14 +275,21 @@ struct HomeView: View {
         }
         guard let created = newCard else { return nil }
         Haptics.success()
-        // Geocoded place name pops in when the lookup lands. Re-fetch the
-        // live card and touch only the title, so a rename or recolor done
-        // while the lookup was in flight is never clobbered.
+        // Title backfill, best source first: GPS place name → AI poetic title
+        // (local CPA vision call) → keep the default. Re-fetch the live card
+        // and touch only the title, so a rename or recolor done while the
+        // lookup was in flight is never clobbered.
         Task {
-            if let coordinate = metadata.coordinate,
-               let place = await PhotoMetadataParser.placeName(for: coordinate),
+            var newTitle: String?
+            if let coordinate = metadata.coordinate {
+                newTitle = await PhotoMetadataParser.placeName(for: coordinate)
+            }
+            if newTitle == nil {
+                newTitle = await AITitle.poeticTitle(for: image)
+            }
+            if let newTitle,
                var fresh = store.card(id: created.id), fresh.title == title {
-                fresh.title = place
+                fresh.title = newTitle
                 withAnimation(uiAnimation) {
                     store.update(fresh)
                 }
@@ -294,18 +314,38 @@ struct HomeView: View {
             .onChanged { value in
                 guard (selection ?? store.cards.first?.id) == card.id else { return }
                 // Lock to an axis on first movement so horizontal paging wins
-                // cleanly when the user is swiping between cards.
+                // cleanly when the user is swiping between cards. A vertical
+                // drag STARTING on the photo repositions the crop instead of
+                // dismissing — but only when the photo overflows its slot.
                 if dragAxis == .undetermined {
-                    dragAxis = abs(value.translation.width) > abs(value.translation.height)
-                        ? .horizontal : .vertical
+                    if abs(value.translation.width) > abs(value.translation.height) {
+                        dragAxis = .horizontal
+                    } else if CardView.photoRect(in: UIScreen.main.bounds.size)
+                                .contains(value.startLocation),
+                              CardView.panOverflow(image: store.image(for: card),
+                                                   screenSize: UIScreen.main.bounds.size) > 0 {
+                        dragAxis = .pan
+                    } else {
+                        dragAxis = .vertical
+                    }
                 }
-                guard dragAxis == .vertical else { return }
-                let dy = value.translation.height
-                dragOffset = dy < 0 ? dy : Self.rubberband(dy, dimension: 320)
+                switch dragAxis {
+                case .pan:
+                    panPreview = value.translation.height
+                case .vertical:
+                    let dy = value.translation.height
+                    dragOffset = dy < 0 ? dy : Self.rubberband(dy, dimension: 320)
+                default:
+                    break
+                }
             }
             .onEnded { value in
                 let axis = dragAxis
                 dragAxis = .undetermined
+                if axis == .pan {
+                    commitPan(card, translation: value.translation.height)
+                    return
+                }
                 guard axis == .vertical else { return }
                 let velocity = value.velocity.height
                 let projected = dragOffset + Self.project(velocity)
@@ -325,6 +365,19 @@ struct HomeView: View {
                     }
                 }
             }
+    }
+
+    /// Fold the drag into the card's stored crop position (normalized -1...1)
+    /// so the reposition persists — and exports exactly as shown.
+    private func commitPan(_ card: ColorCard, translation: CGFloat) {
+        let overflow = CardView.panOverflow(image: store.image(for: card),
+                                            screenSize: UIScreen.main.bounds.size)
+        panPreview = 0
+        guard overflow > 0 else { return }
+        var updated = card
+        let base = CGFloat(card.photoPanY ?? 0)
+        updated.photoPanY = Double(min(max(base + translation / (overflow / 2), -1), 1))
+        store.update(updated)
     }
 
     private func commitDismiss(_ card: ColorCard, velocity: CGFloat) {

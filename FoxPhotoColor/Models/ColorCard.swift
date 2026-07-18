@@ -67,6 +67,10 @@ struct ColorCard: Identifiable, Codable, Equatable {
     var background: RGBAColor
     var accent: RGBAColor
     var palette: [RGBAColor]
+    /// Vertical crop position of the photo inside its fixed slot, normalized
+    /// -1 (show top) ... 1 (show bottom); nil/0 = centered. Optional so cards
+    /// saved before this field decode fine.
+    var photoPanY: Double?
 
     init(id: UUID = UUID(),
          title: String,
