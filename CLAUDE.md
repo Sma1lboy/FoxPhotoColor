@@ -52,10 +52,19 @@ scripts/harness.sh all --seed     # build+run+capture 一条龙
 
 **↑ R1-R12 全部完成(15 commits)。项目按原始规划交付。继续迭代方向(R13+):**
 
-- [ ] R13: 锁屏小组件(accessoryRectangular)+ widget 深链进对应卡片
+- [x] R13: 锁屏小组件(accessoryRectangular,vibrant 材质纯文字档)+ widget 深链——AppInfo.plist(根目录,GENERATE_INFOPLIST_FILE 合并;放 FoxPhotoColor/ 内会被同步组打成资源冲突)注册 foxphotocolor:// scheme,快照带卡片 id,widgetURL → onOpenURL 选卡;E2E:simctl openurl + osascript 点系统确认框(真实 widget 点击无此框),验证跳到目标卡
 - [ ] R14: 设置页扩充(时间格式 12/24h、默认导出比例、清除全部数据)
-- [ ] R15: iPad 适配(TARGETED_DEVICE_FAMILY 1,2 + 布局)
+- [x] R15: iPad 适配第一版——TARGETED_DEVICE_FAMILY "1,2"(4 configs);海报画布 iPad 限宽 560pt 居中(保手机比例不拉伸),手势命中同步 canvasSize + inScreenSpace 偏移;Classic 的冻结布局要显式传 screenSize: canvasSize(默认 UIScreen 会漏过容器限宽)。iPad Air 11 实测 moment/classic ✓。横屏:app 竖屏锁定 + INFOPLIST_KEY_UIRequiresFullScreen = YES(iPad 多任务豁免,App Store 合规);sheet 默认样式可用
 - [ ] R16: CloudKit 同步(多设备色卡库)
 - [x] R17: AI 诗意标题(Support/AITitle.swift 走本地 CPA http://127.0.0.1:8317 /v1/messages,兜底链 GPS 地名 → AI → 默认;env: FPC_AI_BASE_URL/FPC_AI_KEY/FPC_AI_MODEL)
 - [x] R18a: 模式基础设施 + Moment Card(CardMode/fpc.mode、MomentCardView 拍立得卡 + 相机 EXIF 元数据区 + 呼吸 blob 动效、设置页模式选择已接线、诗意标题优先开关 fpc.alwaysPoeticTitle、FPC_MODE 钩子;seed 卡带演示相机数据)
-- [ ] R18b: 其余模式(Bubble Stamp / Magic Journal / Spectrum Wallpaper);Moment Card 导出仍走经典渲染,待接
+- [x] R18b: 全部模式完成——Bubble Stamp(全出血照片 + 调色板呼吸气泡漂浮 + 玻璃标题章)、Spectrum Wallpaper(调色板亮→暗全屏渐变 + 底部签名)、Magic Journal(手账页:日期头 + 斜贴白边照片 + 衬线斜体标题 + 色点行);设置选模式即关 sheet 回主页(参考 app 行为)
+- [x] R19: 导出跟随模式——PosterView 按 fpc.mode 渲染对应模式视图(预览+分享一致),品牌 chrome 置顶层盖全出血模式,Bubble 导出用平面章替代 material,Moment/Journal 在 4:5 下照片高度自适应防溢出;网格缩略图保持模式无关的导航样式(有意为之)
+- [x] R20: 设置全部接线——ColorCard 存 captureDate,CardTime 渲染时按 fpc.use24HourTime 实时格式化(五个模式视图统一,老卡回退存量 timeText);fpc.livePhotoEnabled 门控 Live Photo 加载;fpc.defaultExportAspect 作为导出面板初始比例;设置页三处「即将生效」移除
+- [x] R21: AI 标题健壮性——请求失败重试 1 次;启动时对停在默认标题的卡补一次 AI 命名(E2E:断 CPA 导入→SOMEWHERE,恢复重启→自动补名);提示词随系统语言出中/英文标题;widget 快照时间跟随 12/24h 设置。注意:simctl `defaults write` 写的是模拟器用户级偏好,uninstall 不清,测试后要 `defaults delete`
+- [x] R22: scripts/check-i18n.sh(双目录完整性 + 引用存在性 + 孤儿键检测,当前 78 键全绿;修了 posterButton( 误匹配 Button( 的正则);Bubble 气泡布局移出 30fps 闭包、收紧抖动、y 硬 clamp 到 0.10-0.72 屏高防边缘裁切
+- [x] R23: 设置页「清除全部数据」——CardStore.removeAll()(清缓存+删文件+persist+widget 快照重置),红色危险行 + confirmationDialog 双确认,FPC_CLEAR 钩子 E2E(cards.json 归零、文件全删、回空状态)。R14 三项(时间格式/导出比例/清数据)全部完成
+- [x] R24: 气泡拖拽——NormalizedPoint 归一化坐标存 ColorCard.bubblePositions([Int:点],老卡解码兼容),拖拽 1:1 跟手 + 按住放大/停止呼吸 + 落点回弹,松手持久化;上滑删除手势对气泡命中区(≥44pt)让路;FPC_BUBBLE 钩子验证存取。两个关键修复:① TimelineView 嵌套在 ZStack 里会让子视图 .position 坐标空间漂移——改为 TimelineView 包整个扁平 ZStack(photo/气泡/stamp 同空间)后像素级对齐;② 气泡与照片同源色导致伪装隐形——加 1.2pt 白色 hairline rim
+- [x] R25: 质量收口——bubble 模式 CPU 实测 ~5%(30fps 重绘无需优化);导出预览验证携带气泡存储位置(等比例正确);修 test-palette.sh 编译清单(补 CameraInfo.swift,CameraInfo 拆文件后 ColorCard 的 Codable 合成断了),18 断言全过 + metadata 自检 OK;五模式回归全家福 artifacts/gallery-*.png
+- [x] R26: 四个新模式视图的 VoiceOver 补课——装饰元素(呼吸 blob、漂浮气泡、调色板点)accessibilityHidden;标题带「点按重命名」提示(新键 card.rename.a11y);可点卡面带换色提示(复用 card.recolor.a11y);Bubble 标题章 combine 成单个可读元素
+- [ ] R27: 真机 QA + TestFlight(需用户 Apple 账号);未提交改动分批 commit(待用户指示)

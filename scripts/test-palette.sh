@@ -100,6 +100,7 @@ xcrun -sdk iphonesimulator swiftc \
   -target arm64-apple-ios17.0-simulator -sdk "$SDK" \
   -o "$TMP/palette-tests" \
   FoxPhotoColor/Models/ColorCard.swift \
+  FoxPhotoColor/Models/CameraInfo.swift \
   FoxPhotoColor/Color/PaletteExtractor.swift \
   "$TMP/main.swift"
 

@@ -177,6 +177,22 @@
         }
       }
     },
+    "card.rename.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to rename the title"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点按重命名标题"
+          }
+        }
+      }
+    },
     "direction.e": {
       "localizations": {
         "en": {
@@ -817,6 +833,70 @@
         }
       }
     },
+    "settings.data.clear": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear All Data"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除全部数据"
+          }
+        }
+      }
+    },
+    "settings.data.clear.confirm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete All"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部删除"
+          }
+        }
+      }
+    },
+    "settings.data.clear.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All cards and photos will be deleted. This cannot be undone."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将删除所有色卡与照片,此操作无法撤销。"
+          }
+        }
+      }
+    },
+    "settings.data.clear.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear all data?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要清除全部数据吗?"
+          }
+        }
+      }
+    },
     "settings.export.aspect": {
       "localizations": {
         "en": {
@@ -845,6 +925,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "全屏"
+          }
+        }
+      }
+    },
+    "settings.mode.bubble": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bubble Stamp"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "气泡贴纸"
+          }
+        }
+      }
+    },
+    "settings.mode.bubble.desc": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Palette bubbles drifting over your photo"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "调色板化作气泡,漂浮在照片之上"
           }
         }
       }
@@ -881,6 +993,38 @@
         }
       }
     },
+    "settings.mode.journal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Journal"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "手账页"
+          }
+        }
+      }
+    },
+    "settings.mode.journal.desc": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scrapbook page with date, tilted print, and swatches"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "手账拼贴页,含日期、斜贴照片与色点"
+          }
+        }
+      }
+    },
     "settings.mode.moment": {
       "localizations": {
         "en": {
@@ -913,50 +1057,34 @@
         }
       }
     },
-    "settings.mode.more": {
+    "settings.mode.spectrum": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "More Styles"
+            "value": "Spectrum Wallpaper"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "更多风格"
+            "value": "光谱壁纸"
           }
         }
       }
     },
-    "settings.mode.more.desc": {
+    "settings.mode.spectrum.desc": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Coming soon"
+            "value": "A full-screen gradient from your photo’s colors"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "敬请期待"
-          }
-        }
-      }
-    },
-    "settings.pref.pending": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Takes effect soon"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "即将生效"
+            "value": "照片色彩生成的全屏渐变壁纸"
           }
         }
       }
@@ -973,6 +1101,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "色卡选项"
+          }
+        }
+      }
+    },
+    "settings.section.data": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "数据"
           }
         }
       }
