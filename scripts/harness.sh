@@ -36,10 +36,11 @@ cmd="${1:-all}"; shift || true
 
 case "$cmd" in
   build)
+    # Ad-hoc simulator signing (no team needed) — required so the App Group
+    # entitlement is embedded and the widget can share data.
     xcodebuild -project FoxPhotoColor.xcodeproj -scheme FoxPhotoColor \
       -destination "platform=iOS Simulator,name=$SIM_NAME" \
       -derivedDataPath "$DERIVED" \
-      CODE_SIGNING_ALLOWED=NO \
       build 2>&1 | tail -20
     ;;
   run)

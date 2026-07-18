@@ -1,0 +1,24 @@
+{
+  "sourceLanguage" : "zh-Hans",
+  "strings" : {
+    "widget.description" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your latest color card on the Home Screen." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "把最新的色卡放上主屏幕。" } }
+      }
+    },
+    "widget.empty" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Create a card in FoxPhotoColor" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "先在 FoxPhotoColor 里创建一张色卡" } }
+      }
+    },
+    "widget.name" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Color Card" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "色卡" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

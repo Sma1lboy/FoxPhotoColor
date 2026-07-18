@@ -45,6 +45,7 @@ scripts/harness.sh all --seed     # build+run+capture 一条龙
 - [x] R8: Live Photo 支持(picker 双载 PHLivePhoto,配对视频经 PHAssetResource 持久化,卡上长按播放 + livephoto 角标;真机 E2E 待 R12)
 - [x] R9: 网格总览(双列迷你海报,点击跳卡,FPC_GRID 钩子)
 - [x] R11a: 触觉反馈(建卡/换色/甩删/撤销四个提交时刻)
+- [x] R8/R9 审查加固:原始字节持久化(保 content identifier,重启后 Live Photo 可重配对)、视频后置加载、标题区/照片区手势分权、badge material 底、孤儿文件清扫、360px 网格缩略图缓存
 - [ ] R10: WidgetKit 小组件(随机/最新色卡上桌面;需 pbxproj 加 extension target)
 - [ ] R11b: 性能(超大图提取耗时基准、启动时间)
 - [ ] R12: 真机验证(Live Photo 全链路)+ TestFlight 准备(签名、隐私清单)

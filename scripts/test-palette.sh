@@ -81,6 +81,16 @@ for (i, s) in p.swatches.enumerated() {
     check(gap >= 0.27, "rederive luminance gap on swatch \(i)")
 }
 
+// 6. Performance floor: 12MP-class input must stay interactive.
+let big = gradientImage([(UIColor(red: 0.9, green: 0.55, blue: 0.3, alpha: 1), 0),
+                         (UIColor(red: 0.2, green: 0.25, blue: 0.4, alpha: 1), 1)],
+                        size: 3500,
+                        dot: (UIColor(red: 0.95, green: 0.9, blue: 0.6, alpha: 1), 300))
+let t0 = CFAbsoluteTimeGetCurrent()
+_ = PaletteExtractor.extract(from: big)
+let dt = CFAbsoluteTimeGetCurrent() - t0
+check(dt < 2.0, "12MP extraction in \(String(format: "%.3f", dt))s (< 2s)")
+
 if failures > 0 { print("\(failures) FAILURES"); exit(1) }
 print("palette tests: ALL PASS")
 EOF

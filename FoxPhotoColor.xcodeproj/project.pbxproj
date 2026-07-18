@@ -6,8 +6,37 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		FB000000000000000000000A /* FoxPhotoColorWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000005 /* FoxPhotoColorWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		FB000000000000000000000C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FA000000000000000000000A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FB0000000000000000000006;
+			remoteInfo = FoxPhotoColorWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		FB000000000000000000000B /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				FB000000000000000000000A /* FoxPhotoColorWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		FA0000000000000000000005 /* FoxPhotoColor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FoxPhotoColor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FB0000000000000000000005 /* FoxPhotoColorWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FoxPhotoColorWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -16,10 +45,22 @@
 			path = FoxPhotoColor;
 			sourceTree = "<group>";
 		};
+		FB0000000000000000000001 /* FoxPhotoColorWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = FoxPhotoColorWidget;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		FA0000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FB0000000000000000000002 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,6 +74,7 @@
 			isa = PBXGroup;
 			children = (
 				FA0000000000000000000001 /* FoxPhotoColor */,
+				FB0000000000000000000001 /* FoxPhotoColorWidget */,
 				FA0000000000000000000004 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +83,7 @@
 			isa = PBXGroup;
 			children = (
 				FA0000000000000000000005 /* FoxPhotoColor.app */,
+				FB0000000000000000000005 /* FoxPhotoColorWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -55,10 +98,12 @@
 				FA0000000000000000000008 /* Sources */,
 				FA0000000000000000000002 /* Frameworks */,
 				FA0000000000000000000009 /* Resources */,
+				FB000000000000000000000B /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				FB000000000000000000000D /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				FA0000000000000000000001 /* FoxPhotoColor */,
@@ -70,7 +115,37 @@
 			productReference = FA0000000000000000000005 /* FoxPhotoColor.app */;
 			productType = "com.apple.product-type.application";
 		};
+		FB0000000000000000000006 /* FoxPhotoColorWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FB0000000000000000000007 /* Build configuration list for PBXNativeTarget "FoxPhotoColorWidgetExtension" */;
+			buildPhases = (
+				FB0000000000000000000003 /* Sources */,
+				FB0000000000000000000002 /* Frameworks */,
+				FB0000000000000000000004 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				FB0000000000000000000001 /* FoxPhotoColorWidget */,
+			);
+			name = FoxPhotoColorWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = FoxPhotoColorWidgetExtension;
+			productReference = FB0000000000000000000005 /* FoxPhotoColorWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
+
+/* Begin PBXTargetDependency section */
+		FB000000000000000000000D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FB0000000000000000000006 /* FoxPhotoColorWidgetExtension */;
+			targetProxy = FB000000000000000000000C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXProject section */
 		FA000000000000000000000A /* Project object */ = {
@@ -101,6 +176,7 @@
 			projectRoot = "";
 			targets = (
 				FA0000000000000000000006 /* FoxPhotoColor */,
+				FB0000000000000000000006 /* FoxPhotoColorWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -113,10 +189,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FB0000000000000000000004 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		FA0000000000000000000008 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FB0000000000000000000003 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -190,6 +280,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Config/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
@@ -218,6 +309,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Config/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
@@ -243,6 +335,55 @@
 		};
 /* End XCBuildConfiguration section */
 
+		FB0000000000000000000008 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/Widget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WidgetSupport/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FoxPhotoColor;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.sma1lboy.foxphotocolor.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		FB0000000000000000000009 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/Widget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WidgetSupport/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FoxPhotoColor;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.sma1lboy.foxphotocolor.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+
 /* Begin XCConfigurationList section */
 		FA0000000000000000000007 /* Build configuration list for PBXNativeTarget "FoxPhotoColor" */ = {
 			isa = XCConfigurationList;
@@ -258,6 +399,15 @@
 			buildConfigurations = (
 				FA000000000000000000000C /* Debug */,
 				FA000000000000000000000D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FB0000000000000000000007 /* Build configuration list for PBXNativeTarget "FoxPhotoColorWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FB0000000000000000000008 /* Debug */,
+				FB0000000000000000000009 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

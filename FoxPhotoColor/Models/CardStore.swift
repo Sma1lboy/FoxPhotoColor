@@ -1,6 +1,7 @@
 import SwiftUI
 import ImageIO
 import Photos
+import WidgetKit
 
 /// Persists cards as JSON + JPEGs under Documents/FoxPhotoColor.
 @MainActor
@@ -257,6 +258,42 @@ final class CardStore: ObservableObject {
         } catch {
             errorMessage = String(localized: "error.save_failed")
         }
+        publishWidgetSnapshot()
+    }
+
+    // MARK: - Widget snapshot (App Group)
+
+    private static let appGroupID = "group.me.sma1lboy.foxphotocolor"
+
+    private struct WidgetSnapshot: Codable {
+        var title: String
+        var timeText: String
+        var bg: RGBAColor
+        var accent: RGBAColor
+    }
+
+    /// Latest card → shared container, so the widget can render it.
+    /// No-ops when the app group container is unavailable (e.g. unsigned builds).
+    private func publishWidgetSnapshot() {
+        guard let container = FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: Self.appGroupID) else { return }
+        let jsonURL = container.appendingPathComponent("widget-card.json")
+        let thumbURL = container.appendingPathComponent("widget-thumb.jpg")
+        if let card = cards.first {
+            let snapshot = WidgetSnapshot(title: card.title, timeText: card.timeText,
+                                          bg: card.background, accent: card.accent)
+            if let data = try? JSONEncoder().encode(snapshot) {
+                try? data.write(to: jsonURL, options: .atomic)
+            }
+            if let thumb = thumbnail(for: card),
+               let jpeg = thumb.jpegData(compressionQuality: 0.8) {
+                try? jpeg.write(to: thumbURL, options: .atomic)
+            }
+        } else {
+            try? FileManager.default.removeItem(at: jsonURL)
+            try? FileManager.default.removeItem(at: thumbURL)
+        }
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     // MARK: - Downsampling (ImageIO — no full decode of the original)
