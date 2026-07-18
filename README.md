@@ -6,9 +6,9 @@ Pick a photo → k-means extracts its dominant colors → get a poster you can r
 一款把照片变成极简色卡海报的 iOS App:选照片 → 提取主色 → 生成海报,支持五种海报模式、AI 诗意命名、气泡拖拽与一键分享。
 
 <p align="center">
-  <img src="docs/screenshots/gallery-classic.png" width="19%" alt="Classic mode" />
-  <img src="docs/screenshots/gallery-moment.png" width="19%" alt="Moment Card mode" />
-  <img src="docs/screenshots/gallery-bubble.png" width="19%" alt="Bubble Stamp mode" />
+  <img src="docs/screenshots/gallery-classic.png" width="19%" alt="Moment Card mode" />
+  <img src="docs/screenshots/gallery-moment.png" width="19%" alt="Bubble Stamp mode" />
+  <img src="docs/screenshots/gallery-bubble.png" width="19%" alt="Floating Bubbles mode" />
   <img src="docs/screenshots/gallery-spectrum.png" width="19%" alt="Spectrum Wallpaper mode" />
   <img src="docs/screenshots/gallery-journal.png" width="19%" alt="Magic Journal mode" />
 </p>
