@@ -950,6 +950,38 @@
         "en": {
           "stringUnit": {
             "state": "translated",
+            "value": "Polaroid print with capture metadata and a breathing bubble"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拍立得风格,含拍摄参数与呼吸气泡"
+          }
+        }
+      }
+    },
+    "settings.mode.floating": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Floating Bubbles"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "漂浮气泡"
+          }
+        }
+      }
+    },
+    "settings.mode.floating.desc": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
             "value": "Palette bubbles drifting over your photo"
           }
         },
@@ -957,38 +989,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "调色板化作气泡,漂浮在照片之上"
-          }
-        }
-      }
-    },
-    "settings.mode.classic": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Classic Card"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "经典色卡"
-          }
-        }
-      }
-    },
-    "settings.mode.classic.desc": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Minimalist poster with adaptive background and extracted colors"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "自适应背景与主色提取的极简海报"
           }
         }
       }
@@ -1046,13 +1046,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Polaroid-style print with capture metadata"
+            "value": "Minimalist poster with adaptive background and extracted colors"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "拍立得风格,含拍摄参数与时间地点"
+            "value": "自适应背景与主色提取的极简海报"
           }
         }
       }

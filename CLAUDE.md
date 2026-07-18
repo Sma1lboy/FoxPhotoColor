@@ -68,3 +68,4 @@ scripts/harness.sh all --seed     # build+run+capture 一条龙
 - [x] R25: 质量收口——bubble 模式 CPU 实测 ~5%(30fps 重绘无需优化);导出预览验证携带气泡存储位置(等比例正确);修 test-palette.sh 编译清单(补 CameraInfo.swift,CameraInfo 拆文件后 ColorCard 的 Codable 合成断了),18 断言全过 + metadata 自检 OK;五模式回归全家福 artifacts/gallery-*.png
 - [x] R26: 四个新模式视图的 VoiceOver 补课——装饰元素(呼吸 blob、漂浮气泡、调色板点)accessibilityHidden;标题带「点按重命名」提示(新键 card.rename.a11y);可点卡面带换色提示(复用 card.recolor.a11y);Bubble 标题章 combine 成单个可读元素
 - [ ] R27: 真机 QA + TestFlight(需用户 Apple 账号);未提交改动分批 commit(待用户指示)
+- [x] R28: 模式命名对齐参考 app——classic→moment(时刻卡=极简海报)、moment→bubble(气泡贴纸=拍立得+相机参数)、自创漂浮气泡模式改名 floating;视图文件同步改名(MomentCardView→BubbleStampView、原 BubbleStampView→FloatingBubblesView);旧 fpc.mode 值回退默认 moment

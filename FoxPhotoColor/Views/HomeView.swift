@@ -16,11 +16,11 @@ struct HomeView: View {
     @State private var dragAxis: DragAxis = .undetermined
     @State private var panPreview: CGFloat = 0
 
-    @AppStorage("fpc.mode") private var modeRaw = CardMode.classic.rawValue
+    @AppStorage("fpc.mode") private var modeRaw = CardMode.moment.rawValue
     @AppStorage("fpc.alwaysPoeticTitle") private var alwaysPoeticTitle = false
     @AppStorage("fpc.livePhotoEnabled") private var livePhotoEnabled = true
 
-    private var mode: CardMode { CardMode(rawValue: modeRaw) ?? .classic }
+    private var mode: CardMode { CardMode(rawValue: modeRaw) ?? .moment }
 
     /// iPad: the poster canvas caps at 560pt and centers, keeping the phone
     /// proportions instead of stretching. Phones pass through unchanged.
@@ -74,13 +74,13 @@ struct HomeView: View {
                         let isCurrent = (selection ?? store.cards.first?.id) == card.id
                         Group {
                             switch mode {
-                            case .moment:
-                                MomentCardView(card: card,
+                            case .bubble:
+                                BubbleStampView(card: card,
                                                image: store.image(for: card),
                                                onCycleColor: { cycleColor(card) },
                                                onTitleTap: { beginRename(card) })
-                            case .bubble:
-                                BubbleStampView(card: card,
+                            case .floating:
+                                FloatingBubblesView(card: card,
                                                 image: store.image(for: card),
                                                 onTitleTap: { beginRename(card) },
                                                 onMoveBubble: { index, point in
@@ -94,7 +94,7 @@ struct HomeView: View {
                                                  image: store.image(for: card),
                                                  onCycleColor: { cycleColor(card) },
                                                  onTitleTap: { beginRename(card) })
-                            case .classic:
+                            case .moment:
                                 CardView(card: card,
                                          image: store.image(for: card),
                                          screenSize: canvasSize,
@@ -191,7 +191,7 @@ struct HomeView: View {
             if env["FPC_SETTINGS"] == "1" {
                 showSettings = true
             }
-            // FPC_MODE=classic|moment: force a poster style for screenshots.
+            // FPC_MODE=moment|bubble|floating|spectrum|journal forces a style.
             if let raw = env["FPC_MODE"], CardMode(rawValue: raw) != nil {
                 modeRaw = raw
             }
@@ -444,13 +444,13 @@ struct HomeView: View {
                 if dragAxis == .undetermined {
                     // A drag starting on a bubble belongs to the bubble —
                     // neither dismiss nor paging should fight it.
-                    if mode == .bubble,
-                       BubbleStampView.layout(for: card, in: canvasSize)
+                    if mode == .floating,
+                       FloatingBubblesView.layout(for: card, in: canvasSize)
                            .contains(where: { inScreenSpace($0.hitFrame).contains(value.startLocation) }) {
                         dragAxis = .inert
                     } else if abs(value.translation.width) > abs(value.translation.height) {
                         dragAxis = .horizontal
-                    } else if mode == .classic,
+                    } else if mode == .moment,
                               inScreenSpace(CardView.photoRect(in: canvasSize))
                                 .contains(value.startLocation),
                               CardView.panOverflow(image: store.image(for: card),

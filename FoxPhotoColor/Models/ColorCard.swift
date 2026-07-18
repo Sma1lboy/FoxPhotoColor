@@ -64,9 +64,12 @@ struct NormalizedPoint: Codable, Equatable {
 /// Poster style for the main card browser. Raw values are persisted in
 /// UserDefaults ("fpc.mode") — don't rename cases.
 enum CardMode: String, CaseIterable {
-    case classic
+    /// The classic minimalist poster (the reference's "Moment Card").
     case moment
+    /// Polaroid print with capture metadata (the reference's "Bubble Stamp").
     case bubble
+    /// Our own: draggable palette bubbles over the full-bleed photo.
+    case floating
     case spectrum
     case journal
 }

@@ -23,7 +23,7 @@ struct PosterView: View {
     var showsPaletteStrip = false
     /// Poster style — mirrors the browser's CardMode so the export is
     /// what-you-see-is-what-you-share.
-    var mode: CardMode = .classic
+    var mode: CardMode = .moment
 
     var body: some View {
         ZStack {
@@ -69,12 +69,12 @@ struct PosterView: View {
 
     @ViewBuilder private var modeContent: some View {
         switch mode {
-        case .classic:
-            CardView(card: card, image: image, screenSize: size)
         case .moment:
-            MomentCardView(card: card, image: image)
+            CardView(card: card, image: image, screenSize: size)
         case .bubble:
-            BubbleStampView(card: card, image: image, flatChrome: true)
+            BubbleStampView(card: card, image: image)
+        case .floating:
+            FloatingBubblesView(card: card, image: image, flatChrome: true)
         case .spectrum:
             SpectrumWallpaperView(card: card)
         case .journal:
@@ -110,7 +110,7 @@ enum CardPosterRenderer {
                        image: UIImage,
                        ratio: PosterRatio = .phone,
                        showPaletteStrip: Bool = false,
-                       mode: CardMode = .classic) -> UIImage {
+                       mode: CardMode = .moment) -> UIImage {
         let size = ratio.size
         let poster = PosterView(card: card, image: image, size: size,
                                 showsPaletteStrip: showPaletteStrip,

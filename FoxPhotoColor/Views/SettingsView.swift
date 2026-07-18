@@ -11,7 +11,7 @@ struct SettingsView: View {
     @AppStorage("fpc.use24HourTime") private var use24HourTime = true
     @AppStorage("fpc.livePhotoEnabled") private var livePhotoEnabled = true
     @AppStorage("fpc.defaultExportAspect") private var defaultExportAspect = "full"
-    @AppStorage("fpc.mode") private var modeRaw = CardMode.classic.rawValue
+    @AppStorage("fpc.mode") private var modeRaw = CardMode.moment.rawValue
     @AppStorage("fpc.alwaysPoeticTitle") private var alwaysPoeticTitle = false
 
     private enum Metrics {
@@ -76,17 +76,17 @@ struct SettingsView: View {
 
     private var modeSection: some View {
         section(header: "settings.section.mode") {
-            modeRow(.classic, icon: "rectangle.portrait",
-                    title: "settings.mode.classic",
-                    subtitle: "settings.mode.classic.desc")
-            separator
-            modeRow(.moment, icon: "photo.artframe",
+            modeRow(.moment, icon: "rectangle.portrait",
                     title: "settings.mode.moment",
                     subtitle: "settings.mode.moment.desc")
             separator
-            modeRow(.bubble, icon: "bubbles.and.sparkles",
+            modeRow(.bubble, icon: "photo.artframe",
                     title: "settings.mode.bubble",
                     subtitle: "settings.mode.bubble.desc")
+            separator
+            modeRow(.floating, icon: "bubbles.and.sparkles",
+                    title: "settings.mode.floating",
+                    subtitle: "settings.mode.floating.desc")
             separator
             modeRow(.spectrum, icon: "rectangle.portrait.inset.filled",
                     title: "settings.mode.spectrum",

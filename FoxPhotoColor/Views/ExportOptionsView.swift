@@ -28,14 +28,14 @@ struct ExportOptionsView: View {
     let image: UIImage
 
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("fpc.mode") private var modeRaw = CardMode.classic.rawValue
+    @AppStorage("fpc.mode") private var modeRaw = CardMode.moment.rawValue
     // Initial ratio honors the settings default ("full" | "4:5").
     @State private var ratio: PosterRatio =
         UserDefaults.standard.string(forKey: "fpc.defaultExportAspect") == "4:5" ? .social : .phone
     @State private var showPaletteStrip = false
     @State private var shareItem: ShareImage?
 
-    private var mode: CardMode { CardMode(rawValue: modeRaw) ?? .classic }
+    private var mode: CardMode { CardMode(rawValue: modeRaw) ?? .moment }
 
     var body: some View {
         NavigationStack {
