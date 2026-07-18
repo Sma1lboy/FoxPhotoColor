@@ -1,4 +1,5 @@
 import SwiftUI
+import PhotosUI
 
 /// The poster layout: letterspaced title high on the card, photo just below
 /// center, generous colored margins all around — matching the reference cards.
@@ -10,6 +11,10 @@ struct CardView: View {
     var onSwatchTap: ((RGBAColor) -> Void)? = nil
     /// Export option: flat strip of the extracted palette near the bottom.
     var showsPaletteStrip: Bool = false
+    /// Async Live Photo loader; nil in export/poster contexts.
+    var loadLivePhoto: (() async -> PHLivePhoto?)? = nil
+
+    @State private var livePhoto: PHLivePhoto?
 
     var body: some View {
         GeometryReader { geo in
@@ -33,17 +38,38 @@ struct CardView: View {
                 .frame(height: geo.size.height * 0.34)
 
                 if let image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: geo.size.width - 48,
-                               maxHeight: geo.size.height * 0.42)
-                        .clipShape(RoundedRectangle(cornerRadius: 2))
+                    Group {
+                        if let livePhoto {
+                            // Long-press plays; PHLivePhotoView owns the gesture.
+                            LivePhotoView(livePhoto: livePhoto)
+                                .aspectRatio(image.size, contentMode: .fit)
+                        } else {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFit()
+                        }
+                    }
+                    .frame(maxWidth: geo.size.width - 48,
+                           maxHeight: geo.size.height * 0.42)
+                    .clipShape(RoundedRectangle(cornerRadius: 2))
+                    .overlay(alignment: .topLeading) {
+                        if livePhoto != nil {
+                            Image(systemName: "livephoto")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(card.accent.color.opacity(0.9))
+                                .padding(8)
+                                .accessibilityLabel(Text("card.live.a11y"))
+                        }
+                    }
                 }
 
                 Spacer(minLength: 0)
             }
             .frame(maxWidth: .infinity)
+            .task(id: card.videoFileName) {
+                guard let loadLivePhoto else { return }
+                livePhoto = await loadLivePhoto()
+            }
             .overlay(alignment: .bottom) {
                 if let onSwatchTap, card.palette.count > 1 {
                     SwatchRow(card: card, onTap: onSwatchTap)
@@ -61,6 +87,21 @@ struct CardView: View {
                 }
             }
         }
+    }
+}
+
+/// PHLivePhotoView wrapper — long-press playback comes built in.
+private struct LivePhotoView: UIViewRepresentable {
+    let livePhoto: PHLivePhoto
+
+    func makeUIView(context: Context) -> PHLivePhotoView {
+        let view = PHLivePhotoView()
+        view.contentMode = .scaleAspectFit
+        return view
+    }
+
+    func updateUIView(_ view: PHLivePhotoView, context: Context) {
+        view.livePhoto = livePhoto
     }
 }
 

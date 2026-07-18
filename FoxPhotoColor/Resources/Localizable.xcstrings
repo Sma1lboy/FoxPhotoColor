@@ -37,6 +37,12 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重命名" } }
       }
     },
+    "card.live.a11y" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Live Photo. Long-press to play." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "实况照片，长按播放。" } }
+      }
+    },
     "card.default_title" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Somewhere" } },

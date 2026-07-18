@@ -1,5 +1,6 @@
 import SwiftUI
 import ImageIO
+import Photos
 
 /// Persists cards as JSON + JPEGs under Documents/FoxPhotoColor.
 @MainActor
@@ -12,6 +13,7 @@ final class CardStore: ObservableObject {
     private let indexURL: URL
     /// Display-sized images only; NSCache evicts under memory pressure.
     private let imageCache = NSCache<NSUUID, UIImage>()
+    private let livePhotoCache = NSCache<NSUUID, PHLivePhoto>()
     private static let displayMaxPixel: CGFloat = 1600
 
     init() {
@@ -101,7 +103,11 @@ final class CardStore: ObservableObject {
         guard let pending = pendingDelete else { return }
         pendingDelete = nil
         imageCache.removeObject(forKey: pending.card.id as NSUUID)
+        livePhotoCache.removeObject(forKey: pending.card.id as NSUUID)
         try? FileManager.default.removeItem(at: directory.appendingPathComponent(pending.card.imageFileName))
+        if let video = pending.card.videoFileName {
+            try? FileManager.default.removeItem(at: directory.appendingPathComponent(video))
+        }
     }
 
     /// Display-sized image (≤1600px long edge) for on-screen cards.
@@ -116,6 +122,53 @@ final class CardStore: ObservableObject {
     /// Full-resolution image, uncached — export only.
     func fullImage(for card: ColorCard) -> UIImage? {
         UIImage(contentsOfFile: directory.appendingPathComponent(card.imageFileName).path)
+    }
+
+    // MARK: - Live Photo
+
+    /// Persist the paired video of a picker-provided Live Photo so playback
+    /// survives relaunch; the card gains videoFileName once the copy lands.
+    func attachLivePhoto(_ livePhoto: PHLivePhoto, to card: ColorCard) {
+        livePhotoCache.setObject(livePhoto, forKey: card.id as NSUUID)
+        let resources = PHAssetResource.assetResources(for: livePhoto)
+        guard let paired = resources.first(where: { $0.type == .pairedVideo }) else { return }
+        let name = card.id.uuidString + ".mov"
+        let url = directory.appendingPathComponent(name)
+        try? FileManager.default.removeItem(at: url)
+        PHAssetResourceManager.default().writeData(for: paired, toFile: url, options: nil) { [weak self] error in
+            Task { @MainActor in
+                guard error == nil, let self, var fresh = self.card(id: card.id) else { return }
+                fresh.videoFileName = name
+                self.update(fresh)
+            }
+        }
+    }
+
+    /// Rebuild a playable PHLivePhoto from the persisted still + paired video.
+    func loadLivePhoto(for card: ColorCard) async -> PHLivePhoto? {
+        if let cached = livePhotoCache.object(forKey: card.id as NSUUID) { return cached }
+        guard let videoFileName = card.videoFileName else { return nil }
+        let videoURL = directory.appendingPathComponent(videoFileName)
+        let imageURL = directory.appendingPathComponent(card.imageFileName)
+        guard FileManager.default.fileExists(atPath: videoURL.path) else { return nil }
+        let photo: PHLivePhoto? = await withCheckedContinuation { continuation in
+            var resumed = false
+            PHLivePhoto.request(withResourceFileURLs: [imageURL, videoURL],
+                                placeholderImage: nil,
+                                targetSize: .zero,
+                                contentMode: .aspectFit) { photo, info in
+                // The callback fires again with the full-quality photo; resume
+                // only once, skipping the degraded pass when a final follows.
+                let degraded = (info[PHLivePhotoInfoIsDegradedKey] as? Bool) ?? false
+                guard !degraded, !resumed else { return }
+                resumed = true
+                continuation.resume(returning: photo)
+            }
+        }
+        if let photo {
+            livePhotoCache.setObject(photo, forKey: card.id as NSUUID)
+        }
+        return photo
     }
 
     // MARK: - Persistence

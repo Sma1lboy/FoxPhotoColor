@@ -48,7 +48,8 @@ struct HomeView: View {
                         let isCurrent = (selection ?? store.cards.first?.id) == card.id
                         CardView(card: card,
                                  image: store.image(for: card),
-                                 onSwatchTap: { swatch in recolor(card, with: swatch) })
+                                 onSwatchTap: { swatch in recolor(card, with: swatch) },
+                                 loadLivePhoto: { await store.loadLivePhoto(for: card) })
                             .offset(y: isCurrent ? dragOffset : 0)
                             .opacity(isCurrent ? Double(1 - min(0.35, max(0, -dragOffset) / 900)) : 1)
                             .simultaneousGesture(dismissGesture(for: card))
@@ -213,6 +214,8 @@ struct HomeView: View {
             let (palette, metadata) = await Task.detached(priority: .userInitiated) {
                 (PaletteExtractor.extract(from: image), PhotoMetadataParser.parse(from: data))
             }.value
+            // Live Photos carry a paired video; grab it for on-card playback.
+            let livePhoto = try? await item.loadTransferable(type: PHLivePhoto.self)
             let captureDate = metadata.creationDate ?? .now
             let timeText = captureDate.formatted(date: .omitted, time: .shortened)
             let title = String(localized: "card.default_title")
@@ -222,6 +225,9 @@ struct HomeView: View {
                     selection = card.id
                     newCard = card
                 }
+            }
+            if let created = newCard, let livePhoto {
+                store.attachLivePhoto(livePhoto, to: created)
             }
             // The card is on screen — release the spinner before the (slow,
             // unbounded) geocode instead of at closure exit.

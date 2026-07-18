@@ -50,6 +50,8 @@ struct ColorCard: Identifiable, Codable, Equatable {
     var timeText: String
     var createdAt: Date
     var imageFileName: String
+    /// Paired Live Photo video, when the source was a Live Photo.
+    var videoFileName: String?
     var background: RGBAColor
     var accent: RGBAColor
     var palette: [RGBAColor]
@@ -59,6 +61,7 @@ struct ColorCard: Identifiable, Codable, Equatable {
          timeText: String,
          createdAt: Date = .now,
          imageFileName: String,
+         videoFileName: String? = nil,
          background: RGBAColor,
          accent: RGBAColor,
          palette: [RGBAColor]) {
@@ -67,6 +70,7 @@ struct ColorCard: Identifiable, Codable, Equatable {
         self.timeText = timeText
         self.createdAt = createdAt
         self.imageFileName = imageFileName
+        self.videoFileName = videoFileName
         self.background = background
         self.accent = accent
         self.palette = palette
