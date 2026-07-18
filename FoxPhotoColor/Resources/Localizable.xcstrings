@@ -177,38 +177,6 @@
         }
       }
     },
-    "empty.subtitle": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pick a photo to generate your color card."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "选择一张照片，生成你的色卡。"
-          }
-        }
-      }
-    },
-    "empty.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Every Place Has Its Signature Color"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "每个地方都有它的签名色"
-          }
-        }
-      }
-    },
     "error.export_failed": {
       "localizations": {
         "en": {
@@ -385,6 +353,166 @@
         }
       }
     },
+    "onboard.journal.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic for life fragments, collaging a visual diary"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把生活碎片拼贴成一册视觉日记"
+          }
+        }
+      }
+    },
+    "onboard.journal.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Journal"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "奇妙手账"
+          }
+        }
+      }
+    },
+    "onboard.moment.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Defy the standard narrative\nGive every vibrant moment its own unique color"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拒绝千篇一律\n给每个鲜活时刻它独有的颜色"
+          }
+        }
+      }
+    },
+    "onboard.moment.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moment Card"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "时刻色卡"
+          }
+        }
+      }
+    },
+    "onboard.palette.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extract the essential color palette from any photo"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从任何照片中提取最本质的色彩"
+          }
+        }
+      }
+    },
+    "onboard.palette.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitreous Palette"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "琉璃调色板"
+          }
+        }
+      }
+    },
+    "onboard.stamp.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Floating memories in organic elegance"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让回忆在有机的优雅中漂浮"
+          }
+        }
+      }
+    },
+    "onboard.stamp.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bubble Stamp"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "气泡邮票"
+          }
+        }
+      }
+    },
+    "onboard.wallpaper.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Express your personal style with a wallpaper that is uniquely yours"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用一张独一无二的壁纸表达你的风格"
+          }
+        }
+      }
+    },
+    "onboard.wallpaper.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spectrum Wallpaper"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "光谱壁纸"
+          }
+        }
+      }
+    },
     "rename.message": {
       "localizations": {
         "en": {
@@ -417,34 +545,306 @@
         }
       }
     },
-    "settings.about": {
+    "settings.card.livephoto": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "About"
+            "value": "Support Live Photo"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "关于"
+            "value": "支持实况照片"
           }
         }
       }
     },
-    "settings.about.body": {
+    "settings.card.timeformat": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "FoxPhotoColor extracts the colors of your photos and turns each place into a minimalist color card."
+            "value": "Time Format"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "FoxPhotoColor 提取照片中的色彩，把每个地方变成一张极简色卡。"
+            "value": "时间格式"
+          }
+        }
+      }
+    },
+    "settings.card.tip.recolor": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap the color blocks on a card to cycle background colors"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点按卡片色块可循环调色板更换背景"
+          }
+        }
+      }
+    },
+    "settings.export.aspect": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export ratio"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "默认导出比例"
+          }
+        }
+      }
+    },
+    "settings.export.aspect.full": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全屏"
+          }
+        }
+      }
+    },
+    "settings.mode.classic": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classic Card"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "经典色卡"
+          }
+        }
+      }
+    },
+    "settings.mode.classic.desc": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minimalist poster with adaptive background and extracted colors"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自适应背景与主色提取的极简海报"
+          }
+        }
+      }
+    },
+    "settings.mode.more": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More Styles"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更多风格"
+          }
+        }
+      }
+    },
+    "settings.mode.more.desc": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coming soon"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "敬请期待"
+          }
+        }
+      }
+    },
+    "settings.pref.pending": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Takes effect soon"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "即将生效"
+          }
+        }
+      }
+    },
+    "settings.section.card": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Card Options"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "色卡选项"
+          }
+        }
+      }
+    },
+    "settings.section.developer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follow the Developer"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关注开发者"
+          }
+        }
+      }
+    },
+    "settings.section.export": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export Options"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出选项"
+          }
+        }
+      }
+    },
+    "settings.section.mode": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mode Selection"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "模式选择"
+          }
+        }
+      }
+    },
+    "settings.section.tips": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tips"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用技巧"
+          }
+        }
+      }
+    },
+    "settings.tip.delete": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swipe a card up to delete; undo within 5 seconds"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上滑卡片删除，5 秒内可撤销"
+          }
+        }
+      }
+    },
+    "settings.tip.grid": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use the grid button in the top bar to see all cards"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顶栏网格按钮总览全部色卡"
+          }
+        }
+      }
+    },
+    "settings.tip.live": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long-press the photo to play Live Photo"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "长按照片播放实况"
+          }
+        }
+      }
+    },
+    "settings.tip.rename": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap the title to rename"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点按标题即可重命名"
           }
         }
       }

@@ -128,6 +128,9 @@ struct HomeView: View {
             if env["FPC_GRID"] == "1" {
                 showGrid = true
             }
+            if env["FPC_SETTINGS"] == "1" {
+                showSettings = true
+            }
         }
         .onChange(of: pickerItem) { _, newItem in
             guard let newItem else { return }

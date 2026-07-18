@@ -1,16 +1,27 @@
 import SwiftUI
 import PhotosUI
 
-/// First-run screen: green gradient, logo mark, serif headline, big + picker —
-/// mirrors the reference onboarding card.
+/// First-run screen mirroring the reference: a five-page onboarding carousel,
+/// one page per capability (serif headline + quiet subtitle + page dots),
+/// with the logo and the big + picker fixed above/below the swipeable text.
 struct EmptyStateView: View {
     @Binding var pickerItem: PhotosPickerItem?
+    @State private var page = 0
     @ScaledMetric(relativeTo: .largeTitle) private var titleSize: CGFloat = 30
     @ScaledMetric(relativeTo: .subheadline) private var subtitleSize: CGFloat = 14
 
     /// The onboarding green, washed like the card canvas (measured off the
     /// reference empty screen).
     static let backgroundGradient = CanvasBackground(color: RGBAColor(r: 0.45, g: 0.58, b: 0.43))
+
+    /// The five capabilities, straight from the reference carousel.
+    private static let pages: [(title: LocalizedStringKey, subtitle: LocalizedStringKey)] = [
+        ("onboard.moment.title", "onboard.moment.subtitle"),
+        ("onboard.palette.title", "onboard.palette.subtitle"),
+        ("onboard.journal.title", "onboard.journal.subtitle"),
+        ("onboard.stamp.title", "onboard.stamp.subtitle"),
+        ("onboard.wallpaper.title", "onboard.wallpaper.subtitle"),
+    ]
 
     var body: some View {
         ZStack {
@@ -20,22 +31,42 @@ struct EmptyStateView: View {
             VStack(spacing: 0) {
                 Spacer()
 
-                logoMark
+                FoxMark()
+                    .frame(width: 76, height: 68)
                     .padding(.bottom, 36)
 
-                Text("empty.title")
-                    .font(.system(size: titleSize, weight: .bold, design: .serif))
-                    .tracking(-0.5) // large display text wants negative tracking (skill §15)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 44)
+                // Swipeable feature blurbs. Fixed height so the logo, dots and
+                // + button never shift as titles wrap differently.
+                TabView(selection: $page) {
+                    ForEach(Array(Self.pages.enumerated()), id: \.offset) { index, item in
+                        VStack(spacing: 14) {
+                            Text(item.title)
+                                .font(.system(size: titleSize, weight: .bold, design: .serif))
+                                .tracking(-0.5)
+                                .multilineTextAlignment(.center)
+                                .foregroundStyle(.white)
+                            Text(item.subtitle)
+                                .font(.system(size: subtitleSize, design: .serif))
+                                .foregroundStyle(.white.opacity(0.75))
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding(.horizontal, 44)
+                        .tag(index)
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .frame(height: 130)
 
-                Text("empty.subtitle")
-                    .font(.system(size: subtitleSize))
-                    .foregroundStyle(.white.opacity(0.85))
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 14)
-                    .padding(.horizontal, 44)
+                // Page dots (reference style: small, current one solid white).
+                HStack(spacing: 9) {
+                    ForEach(0..<Self.pages.count, id: \.self) { index in
+                        Circle()
+                            .fill(.white.opacity(index == page ? 1 : 0.35))
+                            .frame(width: 7, height: 7)
+                    }
+                }
+                .padding(.top, 8)
+                .animation(.spring(response: 0.3, dampingFraction: 1.0), value: page)
 
                 PhotosPicker(selection: $pickerItem, matching: .images, photoLibrary: .shared()) {
                     ZStack {
@@ -47,20 +78,12 @@ struct EmptyStateView: View {
                     .frame(width: 108, height: 108)
                 }
                 .buttonStyle(PressableButtonStyle())
-                .padding(.top, 48)
+                .padding(.top, 40)
 
                 Spacer()
                 Spacer()
             }
         }
-    }
-
-    /// The app's logo mark: a minimal geometric fox head (kin to the codefox
-    /// fox) — two ears and a muzzle cut from a rounded face, in the brand's
-    /// warm orange over a soft cream chest.
-    private var logoMark: some View {
-        FoxMark()
-            .frame(width: 76, height: 68)
     }
 }
 
