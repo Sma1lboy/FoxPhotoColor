@@ -31,9 +31,9 @@ struct EmptyStateView: View {
             VStack(spacing: 0) {
                 Spacer()
 
-                FoxMark()
-                    .frame(width: 76, height: 68)
-                    .padding(.bottom, 36)
+                LayeredFoxMark()
+                    .frame(width: 84, height: 96)
+                    .padding(.bottom, 30)
 
                 // Swipeable feature blurbs. Fixed height so the logo, dots and
                 // + button never shift as titles wrap differently.
@@ -76,6 +76,8 @@ struct EmptyStateView: View {
                             .foregroundStyle(.white.opacity(0.95))
                     }
                     .frame(width: 108, height: 108)
+                    // Reference: the + slowly breathes while waiting.
+                    .modifier(BreathingScale())
                 }
                 .buttonStyle(PressableButtonStyle())
                 .padding(.top, 40)
@@ -91,66 +93,97 @@ struct EmptyStateView: View {
 /// Kin to the codefox fox: tall ears, soft jaw, cream muzzle.
 struct FoxMark: View {
     var body: some View {
+        FoxSilhouette()
+            .fill(Color(red: 0.89, green: 0.36, blue: 0.16))
+    }
+}
+
+/// Detail-free fox head silhouette (two ears + rounded face wedge), usable as
+/// a tinted shadow layer.
+struct FoxSilhouette: Shape {
+    func path(in rect: CGRect) -> Path {
+        let w = rect.width, h = rect.height
+        var p = Path()
+        // Left ear
+        p.move(to: CGPoint(x: rect.minX + w * 0.08, y: rect.minY + h * 0.02))
+        p.addLine(to: CGPoint(x: rect.minX + w * 0.34, y: rect.minY + h * 0.30))
+        p.addLine(to: CGPoint(x: rect.minX + w * 0.10, y: rect.minY + h * 0.42))
+        p.closeSubpath()
+        // Right ear
+        p.move(to: CGPoint(x: rect.minX + w * 0.92, y: rect.minY + h * 0.02))
+        p.addLine(to: CGPoint(x: rect.minX + w * 0.66, y: rect.minY + h * 0.30))
+        p.addLine(to: CGPoint(x: rect.minX + w * 0.90, y: rect.minY + h * 0.42))
+        p.closeSubpath()
+        // Face: rounded wedge tapering to the muzzle.
+        p.move(to: CGPoint(x: rect.minX + w * 0.06, y: rect.minY + h * 0.30))
+        p.addQuadCurve(to: CGPoint(x: rect.minX + w * 0.94, y: rect.minY + h * 0.30),
+                       control: CGPoint(x: rect.midX, y: rect.minY + h * 0.14))
+        p.addQuadCurve(to: CGPoint(x: rect.midX, y: rect.minY + h * 0.98),
+                       control: CGPoint(x: rect.minX + w * 0.96, y: rect.minY + h * 0.78))
+        p.addQuadCurve(to: CGPoint(x: rect.minX + w * 0.06, y: rect.minY + h * 0.30),
+                       control: CGPoint(x: rect.minX + w * 0.04, y: rect.minY + h * 0.78))
+        p.closeSubpath()
+        return p
+    }
+}
+
+/// The onboarding logo: three detail-free fox silhouettes stacked like the
+/// reference's three ellipses (pale above, deep below). On appear the stack
+/// floats up from below as one, then the layers fan apart vertically.
+struct LayeredFoxMark: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// 0 = stacked & offscreen-ish, 1 = risen & fanned.
+    @State private var fan: CGFloat = 0
+    @State private var risen = false
+
+    var body: some View {
         GeometryReader { geo in
-            let w = geo.size.width, h = geo.size.height
+            let w = geo.size.width
+            let spread = geo.size.height * 0.14
             ZStack {
-                // Ears + head silhouette in the brand orange.
-                Path { p in
-                    // Left ear
-                    p.move(to: CGPoint(x: w * 0.08, y: h * 0.02))
-                    p.addLine(to: CGPoint(x: w * 0.34, y: h * 0.30))
-                    p.addLine(to: CGPoint(x: w * 0.10, y: h * 0.42))
-                    p.closeSubpath()
-                    // Right ear
-                    p.move(to: CGPoint(x: w * 0.92, y: h * 0.02))
-                    p.addLine(to: CGPoint(x: w * 0.66, y: h * 0.30))
-                    p.addLine(to: CGPoint(x: w * 0.90, y: h * 0.42))
-                    p.closeSubpath()
-                }
-                .fill(Color(red: 0.89, green: 0.36, blue: 0.16))
-
-                // Face: rounded wedge tapering to the muzzle.
-                Path { p in
-                    p.move(to: CGPoint(x: w * 0.06, y: h * 0.30))
-                    p.addQuadCurve(to: CGPoint(x: w * 0.94, y: h * 0.30),
-                                   control: CGPoint(x: w * 0.5, y: h * 0.14))
-                    p.addQuadCurve(to: CGPoint(x: w * 0.5, y: h * 0.98),
-                                   control: CGPoint(x: w * 0.96, y: h * 0.78))
-                    p.addQuadCurve(to: CGPoint(x: w * 0.06, y: h * 0.30),
-                                   control: CGPoint(x: w * 0.04, y: h * 0.78))
-                    p.closeSubpath()
-                }
-                .fill(Color(red: 0.89, green: 0.36, blue: 0.16))
-
-                // Cream muzzle: soft triangle at the chin.
-                Path { p in
-                    p.move(to: CGPoint(x: w * 0.30, y: h * 0.62))
-                    p.addQuadCurve(to: CGPoint(x: w * 0.70, y: h * 0.62),
-                                   control: CGPoint(x: w * 0.5, y: h * 0.52))
-                    p.addQuadCurve(to: CGPoint(x: w * 0.5, y: h * 0.98),
-                                   control: CGPoint(x: w * 0.72, y: h * 0.88))
-                    p.addQuadCurve(to: CGPoint(x: w * 0.30, y: h * 0.62),
-                                   control: CGPoint(x: w * 0.28, y: h * 0.88))
-                    p.closeSubpath()
-                }
-                .fill(Color(red: 0.98, green: 0.94, blue: 0.86))
-
-                // Eyes: two dark dots.
-                Circle()
-                    .fill(Color(red: 0.13, green: 0.12, blue: 0.18))
-                    .frame(width: w * 0.075, height: w * 0.075)
-                    .position(x: w * 0.32, y: h * 0.50)
-                Circle()
-                    .fill(Color(red: 0.13, green: 0.12, blue: 0.18))
-                    .frame(width: w * 0.075, height: w * 0.075)
-                    .position(x: w * 0.68, y: h * 0.50)
-                // Nose.
-                Circle()
-                    .fill(Color(red: 0.13, green: 0.12, blue: 0.18))
-                    .frame(width: w * 0.09, height: w * 0.09)
-                    .position(x: w * 0.5, y: h * 0.80)
+                FoxSilhouette()
+                    .fill(Color(red: 0.85, green: 0.89, blue: 0.66).opacity(0.95))
+                    .frame(width: w, height: w * 0.9)
+                    .offset(y: -spread * fan)
+                FoxSilhouette()
+                    .fill(Color(red: 0.36, green: 0.46, blue: 0.30))
+                    .frame(width: w, height: w * 0.9)
+                FoxSilhouette()
+                    .fill(Color(red: 0.15, green: 0.22, blue: 0.16).opacity(0.92))
+                    .frame(width: w, height: w * 0.9)
+                    .offset(y: spread * fan)
+            }
+            .frame(width: geo.size.width, height: geo.size.height)
+            .offset(y: risen ? 0 : geo.size.height * 0.5)
+            .opacity(risen ? 1 : 0)
+        }
+        .onAppear {
+            guard !reduceMotion else { risen = true; fan = 1; return }
+            // Rise as one stack, then fan the layers apart.
+            withAnimation(.spring(response: 0.55, dampingFraction: 1.0)) {
+                risen = true
+            }
+            withAnimation(.spring(response: 0.6, dampingFraction: 1.0).delay(0.45)) {
+                fan = 1
             }
         }
+    }
+}
+
+/// Slow idle breathing (reference: the big + gently scales in and out).
+struct BreathingScale: ViewModifier {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var inhale = false
+
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(inhale ? 1.05 : 1.0)
+            .onAppear {
+                guard !reduceMotion else { return }
+                withAnimation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true)) {
+                    inhale = true
+                }
+            }
     }
 }
 
