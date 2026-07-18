@@ -5,8 +5,11 @@ import SwiftUI
 struct CardView: View {
     let card: ColorCard
     let image: UIImage?
-    /// On-screen only; the exported poster stays clean.
+    /// On-screen only; the exported poster stays clean unless the user opts
+    /// into the flat palette strip below.
     var onSwatchTap: ((RGBAColor) -> Void)? = nil
+    /// Export option: flat strip of the extracted palette near the bottom.
+    var showsPaletteStrip: Bool = false
 
     var body: some View {
         GeometryReader { geo in
@@ -45,6 +48,16 @@ struct CardView: View {
                 if let onSwatchTap, card.palette.count > 1 {
                     SwatchRow(card: card, onTap: onSwatchTap)
                         .padding(.bottom, 30)
+                } else if showsPaletteStrip, card.palette.count > 1 {
+                    HStack(spacing: 5) {
+                        ForEach(Array(card.palette.prefix(6).enumerated()), id: \.offset) { _, swatch in
+                            RoundedRectangle(cornerRadius: 3)
+                                .fill(swatch.color)
+                                .frame(height: 26)
+                        }
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, geo.size.height * 0.05)
                 }
             }
         }

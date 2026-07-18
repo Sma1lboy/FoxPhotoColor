@@ -34,8 +34,8 @@ scripts/harness.sh all --seed     # build+run+capture 一条龙
 
 - [x] R1: 工程脚手架 + 提色管线 + 卡片/空状态/设置/导出 + harness + i18n
 - [x] R2: 视觉对齐参考图 + app 图标 + 状态栏适配 + 审查修复(数据丢失防护/NSCache 降采样/accent 感知亮度/Reduce Motion/删卡 selection)
-- [ ] R3: 从 PHAsset 读取拍摄时间/地点自动命名(反向地理编码)
-- [ ] R4: 调色板 UI(卡片下滑出 swatches,可选任一色作背景)
+- [x] R3: EXIF/GPS 自动命名(免相册权限直读图片数据)+ CLGeocoder 反向地理编码,拍摄时间做卡片时间
+- [x] R4: 卡片底部调色板圆点(44pt 命中区,VoiceOver 逐点标签),点选换背景 + accent 自动重配,FPC_RECOLOR 钩子验证
 - [ ] R5: 卡片切换/删除的流体动画与手势(velocity handoff、rubber-band)
 - [ ] R6: 导出样式选项(含/不含调色板条、比例 4:5/9:16)
 - [ ] R7: 单元测试(PaletteExtractor 确定性、CardStore 持久化)

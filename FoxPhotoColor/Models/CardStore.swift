@@ -61,11 +61,47 @@ final class CardStore: ObservableObject {
         persist()
     }
 
-    func delete(_ card: ColorCard) {
-        cards.removeAll { $0.id == card.id }
-        imageCache.removeObject(forKey: card.id as NSUUID)
-        try? FileManager.default.removeItem(at: directory.appendingPathComponent(card.imageFileName))
+    // MARK: - Delete with undo (agency: forgiveness over confirmation dialogs)
+
+    struct PendingDelete {
+        let card: ColorCard
+        let index: Int
+    }
+
+    @Published private(set) var pendingDelete: PendingDelete?
+    private var purgeTask: Task<Void, Never>?
+
+    /// Removes the card from the list but keeps its file for a few seconds so
+    /// the user can undo; the previous pending delete (if any) is purged first.
+    func softDelete(_ card: ColorCard) {
+        guard let idx = cards.firstIndex(where: { $0.id == card.id }) else { return }
+        purgePendingDelete()
+        cards.remove(at: idx)
+        pendingDelete = PendingDelete(card: card, index: idx)
         persist()
+        purgeTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(5))
+            guard !Task.isCancelled else { return }
+            self?.purgePendingDelete()
+        }
+    }
+
+    func undoDelete() {
+        purgeTask?.cancel()
+        purgeTask = nil
+        guard let pending = pendingDelete else { return }
+        pendingDelete = nil
+        cards.insert(pending.card, at: min(pending.index, cards.count))
+        persist()
+    }
+
+    func purgePendingDelete() {
+        purgeTask?.cancel()
+        purgeTask = nil
+        guard let pending = pendingDelete else { return }
+        pendingDelete = nil
+        imageCache.removeObject(forKey: pending.card.id as NSUUID)
+        try? FileManager.default.removeItem(at: directory.appendingPathComponent(pending.card.imageFileName))
     }
 
     /// Display-sized image (≤1600px long edge) for on-screen cards.

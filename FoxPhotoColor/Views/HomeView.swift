@@ -8,10 +8,14 @@ struct HomeView: View {
     @State private var selection: UUID?
     @State private var pickerItem: PhotosPickerItem?
     @State private var showSettings = false
-    @State private var shareItem: ShareImage?
     @State private var renameTarget: ColorCard?
     @State private var renameText = ""
     @State private var isImporting = false
+    @State private var exportTarget: ColorCard?
+    @State private var dragOffset: CGFloat = 0
+    @State private var dragAxis: DragAxis = .undetermined
+
+    private enum DragAxis { case undetermined, vertical, horizontal }
 
     private var currentCard: ColorCard? {
         store.card(id: selection) ?? store.cards.first
@@ -41,9 +45,13 @@ struct HomeView: View {
             } else {
                 TabView(selection: $selection) {
                     ForEach(store.cards) { card in
+                        let isCurrent = (selection ?? store.cards.first?.id) == card.id
                         CardView(card: card,
                                  image: store.image(for: card),
                                  onSwatchTap: { swatch in recolor(card, with: swatch) })
+                            .offset(y: isCurrent ? dragOffset : 0)
+                            .opacity(isCurrent ? Double(1 - min(0.35, max(0, -dragOffset) / 900)) : 1)
+                            .simultaneousGesture(dismissGesture(for: card))
                             .tag(Optional(card.id))
                             .contextMenu {
                                 Button {
@@ -76,13 +84,20 @@ struct HomeView: View {
                 Spacer()
             }
 
+            if store.pendingDelete != nil {
+                undoToast
+            }
+
             if isImporting {
                 ProgressView()
                     .controlSize(.large)
                     .tint(chromeIsDark ? Color.black.opacity(0.6) : .white)
             }
         }
+        .animation(uiAnimation, value: store.pendingDelete?.card.id)
         .onAppear {
+            // Seed must run before the QA hooks below can reference cards.
+            SampleSeed.seedIfNeeded(into: store)
             // QA harness hooks (headless sims can't tap): FPC_SELECT=<index>
             // jumps to a card; FPC_RECOLOR=<card>:<swatch> exercises the real
             // recolor path so screenshots can verify it.
@@ -101,6 +116,13 @@ struct HomeView: View {
                     }
                 }
             }
+            if let raw = env["FPC_DELETE"],
+               let idx = Int(raw), store.cards.indices.contains(idx) {
+                deleteCard(store.cards[idx])
+            }
+            if env["FPC_EXPORT"] == "1", let card = store.cards.first {
+                export(card)
+            }
         }
         .onChange(of: pickerItem) { _, newItem in
             guard let newItem else { return }
@@ -109,8 +131,10 @@ struct HomeView: View {
         .sheet(isPresented: $showSettings) {
             SettingsView()
         }
-        .sheet(item: $shareItem) { item in
-            ShareSheet(items: [item.image])
+        .sheet(item: $exportTarget) { card in
+            if let image = store.fullImage(for: card) ?? store.image(for: card) {
+                ExportOptionsView(card: card, image: image)
+            }
         }
         .alert("rename.message", isPresented: renameBinding) {
             TextField("rename.placeholder", text: $renameText)
@@ -218,12 +242,100 @@ struct HomeView: View {
     }
 
     private func export(_ card: ColorCard) {
-        guard let image = store.fullImage(for: card) ?? store.image(for: card) else {
+        guard store.fullImage(for: card) ?? store.image(for: card) != nil else {
             store.errorMessage = String(localized: "error.export_failed")
             return
         }
-        let poster = CardPosterRenderer.render(card: card, image: image)
-        shareItem = ShareImage(image: poster)
+        exportTarget = card
+    }
+
+    // MARK: - Fluid dismiss (skill §2/§3/§5/§6/§9: 1:1 tracking, interruptible,
+    // velocity handoff, momentum projection, rubber-band)
+
+    private func dismissGesture(for card: ColorCard) -> some Gesture {
+        DragGesture(minimumDistance: 14, coordinateSpace: .local)
+            .onChanged { value in
+                guard (selection ?? store.cards.first?.id) == card.id else { return }
+                // Lock to an axis on first movement so horizontal paging wins
+                // cleanly when the user is swiping between cards.
+                if dragAxis == .undetermined {
+                    dragAxis = abs(value.translation.width) > abs(value.translation.height)
+                        ? .horizontal : .vertical
+                }
+                guard dragAxis == .vertical else { return }
+                let dy = value.translation.height
+                dragOffset = dy < 0 ? dy : Self.rubberband(dy, dimension: 320)
+            }
+            .onEnded { value in
+                let axis = dragAxis
+                dragAxis = .undetermined
+                guard axis == .vertical else { return }
+                let velocity = value.velocity.height
+                let projected = dragOffset + Self.project(velocity)
+                let commitThreshold = -UIScreen.main.bounds.height * 0.32
+                if projected < commitThreshold, store.cards.count >= 1 {
+                    commitDismiss(card, velocity: velocity)
+                } else {
+                    withAnimation(reduceMotion ? .easeOut(duration: 0.2)
+                                               : .spring(response: 0.4, dampingFraction: 1.0)) {
+                        dragOffset = 0
+                    }
+                }
+            }
+    }
+
+    private func commitDismiss(_ card: ColorCard, velocity: CGFloat) {
+        let target = -UIScreen.main.bounds.height * 1.1
+        // Hand the gesture's velocity to the spring so there is no seam
+        // between the finger and the animation.
+        let relativeVelocity = Double(velocity / (target - dragOffset))
+        let fling: Animation = reduceMotion
+            ? .easeOut(duration: 0.18)
+            : .interpolatingSpring(stiffness: 180, damping: 26, initialVelocity: relativeVelocity)
+        withAnimation(fling) {
+            dragOffset = target
+        }
+        Task {
+            try? await Task.sleep(for: .milliseconds(reduceMotion ? 180 : 230))
+            deleteCard(card)
+            dragOffset = 0
+        }
+    }
+
+    /// Apple's momentum projection (deceleration ≈ 0.998).
+    private static func project(_ velocity: CGFloat, decelerationRate: CGFloat = 0.998) -> CGFloat {
+        (velocity / 1000) * decelerationRate / (1 - decelerationRate)
+    }
+
+    /// Progressive resistance past a boundary (skill §9).
+    private static func rubberband(_ overshoot: CGFloat, dimension: CGFloat, constant: CGFloat = 0.55) -> CGFloat {
+        (overshoot * dimension * constant) / (dimension + constant * abs(overshoot))
+    }
+
+    private var undoToast: some View {
+        VStack {
+            Spacer()
+            HStack(spacing: 14) {
+                Text("toast.deleted")
+                    .font(.system(size: 14, weight: .medium))
+                Button {
+                    withAnimation(uiAnimation) {
+                        store.undoDelete()
+                    }
+                } label: {
+                    Text("action.undo")
+                        .font(.system(size: 14, weight: .bold))
+                }
+                .buttonStyle(PressableButtonStyle())
+            }
+            .foregroundStyle(.white)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+            .background(Capsule().fill(Color.black.opacity(0.72)))
+            // Sits above the swatch row so the two never overlap.
+            .padding(.bottom, 96)
+        }
+        .transition(.move(edge: .bottom).combined(with: .opacity))
     }
 
     private func recolor(_ card: ColorCard, with swatch: RGBAColor) {
@@ -245,7 +357,7 @@ struct HomeView: View {
             selection = remaining.indices.contains(oldIndex) ? remaining[oldIndex].id : remaining.last?.id
         }
         withAnimation(uiAnimation) {
-            store.delete(card)
+            store.softDelete(card)
         }
     }
 

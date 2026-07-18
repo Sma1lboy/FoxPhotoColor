@@ -85,6 +85,54 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法读取这张色卡的照片，导出失败。" } }
       }
     },
+    "export.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export Style" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "导出样式" } }
+      }
+    },
+    "export.ratio" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Aspect ratio" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "画幅比例" } }
+      }
+    },
+    "export.ratio.phone" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Phone" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "手机全屏" } }
+      }
+    },
+    "export.ratio.social" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "4:5" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "4:5 社交" } }
+      }
+    },
+    "export.palette_strip" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Include palette strip" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "附上调色板条" } }
+      }
+    },
+    "action.share" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Share" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "分享" } }
+      }
+    },
+    "toast.deleted" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Card deleted" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已删除色卡" } }
+      }
+    },
+    "action.undo" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Undo" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "撤销" } }
+      }
+    },
     "rename.message" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Name this color card" } },

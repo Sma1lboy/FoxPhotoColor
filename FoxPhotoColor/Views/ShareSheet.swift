@@ -15,11 +15,14 @@ struct ShareSheet: UIViewControllerRepresentable {
 /// Renders a card as a full-resolution poster image for export.
 enum CardPosterRenderer {
     @MainActor
-    static func render(card: ColorCard, image: UIImage) -> UIImage {
-        let size = CGSize(width: 430, height: 932) // iPhone poster canvas, @3x below
+    static func render(card: ColorCard,
+                       image: UIImage,
+                       ratio: PosterRatio = .phone,
+                       showPaletteStrip: Bool = false) -> UIImage {
+        let size = ratio.size
         let poster = ZStack {
             card.background.color
-            CardView(card: card, image: image)
+            CardView(card: card, image: image, showsPaletteStrip: showPaletteStrip)
         }
         .frame(width: size.width, height: size.height)
 

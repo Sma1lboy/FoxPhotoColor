@@ -8,9 +8,6 @@ struct FoxPhotoColorApp: App {
         WindowGroup {
             HomeView()
                 .environmentObject(store)
-                .task {
-                    SampleSeed.seedIfNeeded(into: store)
-                }
         }
     }
 }
