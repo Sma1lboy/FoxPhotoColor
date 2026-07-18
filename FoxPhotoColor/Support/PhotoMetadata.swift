@@ -24,6 +24,9 @@ enum PhotoMetadataParser {
             fmt.dateFormat = "yyyy:MM:dd HH:mm:ss"
             fmt.locale = Locale(identifier: "en_US_POSIX")
             fmt.timeZone = .current
+            // Wall-clock strings can land in a DST spring-forward gap; lenient
+            // parsing keeps the photo's time instead of nil-ing out.
+            fmt.isLenient = true
             date = fmt.date(from: raw)
         }
 

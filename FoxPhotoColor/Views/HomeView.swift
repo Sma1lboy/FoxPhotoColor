@@ -199,14 +199,19 @@ struct HomeView: View {
                     newCard = card
                 }
             }
-            // Card appears instantly; the geocoded place name pops in when the
-            // lookup lands (only if the user hasn't renamed it meanwhile).
-            if var card = newCard, let coordinate = metadata.coordinate,
+            // The card is on screen — release the spinner before the (slow,
+            // unbounded) geocode instead of at closure exit.
+            isImporting = false
+            pickerItem = nil
+            // Geocoded place name pops in when the lookup lands. Re-fetch the
+            // live card and touch only the title, so a rename or recolor done
+            // while the lookup was in flight is never clobbered.
+            if let created = newCard, let coordinate = metadata.coordinate,
                let place = await PhotoMetadataParser.placeName(for: coordinate),
-               store.card(id: card.id)?.title == title {
-                card.title = place
+               var fresh = store.card(id: created.id), fresh.title == title {
+                fresh.title = place
                 withAnimation(uiAnimation) {
-                    store.update(card)
+                    store.update(fresh)
                 }
             }
         }

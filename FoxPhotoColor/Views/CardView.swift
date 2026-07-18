@@ -57,25 +57,32 @@ private struct SwatchRow: View {
     let onTap: (RGBAColor) -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
-            ForEach(Array(card.palette.prefix(6).enumerated()), id: \.offset) { _, swatch in
+        let swatches = Array(card.palette.prefix(6).enumerated())
+        HStack(spacing: 2) {
+            ForEach(swatches, id: \.offset) { index, swatch in
+                let current = isCurrent(swatch)
                 Button {
                     onTap(swatch)
                 } label: {
                     Circle()
                         .fill(swatch.color)
-                        .frame(width: 15, height: 15)
+                        .frame(width: current ? 19 : 15, height: current ? 19 : 15)
                         .overlay(
                             Circle().strokeBorder(
-                                card.accent.color.opacity(isCurrent(swatch) ? 0.9 : 0.25),
-                                lineWidth: isCurrent(swatch) ? 2 : 1)
+                                card.accent.color.opacity(current ? 0.9 : 0.25),
+                                lineWidth: current ? 2 : 1)
                         )
-                        .padding(4) // generous hit area
-                        .contentShape(Circle())
+                        // 44pt HIG-minimum hit target around the small dot
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(PressableButtonStyle())
+                .accessibilityLabel(Text(String(format: String(localized: "swatch.item.a11y"),
+                                                index + 1, swatches.count)))
+                .accessibilityAddTraits(current ? [.isSelected] : [])
             }
         }
+        .accessibilityElement(children: .contain)
         .accessibilityLabel(Text("swatch.row.a11y"))
     }
 
