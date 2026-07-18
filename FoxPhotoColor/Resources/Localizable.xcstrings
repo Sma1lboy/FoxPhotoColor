@@ -1089,6 +1089,38 @@
         }
       }
     },
+    "settings.mode.vitreous": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitreous Palette"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "琉璃色卡"
+          }
+        }
+      }
+    },
+    "settings.mode.vitreous.desc": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A vitreous extraction of the photo’s color spectrum"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "玻璃面板呈现照片的六色光谱"
+          }
+        }
+      }
+    },
     "settings.section.card": {
       "localizations": {
         "en": {

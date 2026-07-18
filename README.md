@@ -3,7 +3,7 @@
 **Turn any photo into a minimalist color-palette poster.**
 Pick a photo → k-means extracts its dominant colors → get a poster you can restyle, retitle, and share. Built with SwiftUI for iOS 17+.
 
-一款把照片变成极简色卡海报的 iOS App:选照片 → 提取主色 → 生成海报,支持五种海报模式、AI 诗意命名、气泡拖拽与一键分享。
+一款把照片变成极简色卡海报的 iOS App:选照片 → 提取主色 → 生成海报,支持六种海报模式、AI 诗意命名、气泡拖拽与一键分享。
 
 <p align="center">
   <img src="docs/screenshots/gallery-classic.png" width="19%" alt="Moment Card mode" />
@@ -15,7 +15,7 @@ Pick a photo → k-means extracts its dominant colors → get a poster you can r
 
 ## Features
 
-- **Five poster modes** — Moment Card (minimalist poster), Bubble Stamp (polaroid with EXIF camera metadata and a breathing accent bubble), Floating Bubbles (draggable palette bubbles with an organic wobble), Spectrum Wallpaper (full-screen gradient from the palette), and Magic Journal (scrapbook page). Switch from Settings; the choice persists.
+- **Six poster modes** — Moment Card (minimalist poster), Vitreous Palette (frosted-glass panel of the six extracted colors with hex codes), Bubble Stamp (polaroid with EXIF camera metadata and a breathing accent bubble), Floating Bubbles (draggable palette bubbles with an organic wobble), Spectrum Wallpaper (full-screen gradient from the palette), and Magic Journal (scrapbook page). Switch from Settings; the choice persists.
 - **AI poetic titles** — a downscaled copy of the photo is sent to an Anthropic-compatible vision endpoint which names the card ("Golden Hour Lane", 「林间暮光」). Fallback chain: GPS place name → AI title → default. Fully optional; the app works offline.
 - **On-device color pipeline** — deterministic k-means palette extraction (12 MP in ~0.05 s), perceptual-luminance-aware accent pairing, tap the card to cycle backgrounds through the palette.
 - **EXIF-aware** — capture time, GPS reverse-geocoded place names ("Golden Gate Park · San Francisco"), camera model / aperture / shutter / ISO / altitude / heading rendered on the Moment Card. Reads image bytes directly; no photo-library permission needed.

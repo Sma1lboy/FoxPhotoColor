@@ -74,6 +74,10 @@ struct HomeView: View {
                         let isCurrent = (selection ?? store.cards.first?.id) == card.id
                         Group {
                             switch mode {
+                            case .vitreous:
+                                VitreousPaletteView(card: card,
+                                                    image: store.image(for: card),
+                                                    onSelectColor: { recolor(card, with: $0) })
                             case .bubble:
                                 BubbleStampView(card: card,
                                                image: store.image(for: card),

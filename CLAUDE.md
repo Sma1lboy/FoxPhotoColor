@@ -69,3 +69,4 @@ scripts/harness.sh all --seed     # build+run+capture 一条龙
 - [x] R26: 四个新模式视图的 VoiceOver 补课——装饰元素(呼吸 blob、漂浮气泡、调色板点)accessibilityHidden;标题带「点按重命名」提示(新键 card.rename.a11y);可点卡面带换色提示(复用 card.recolor.a11y);Bubble 标题章 combine 成单个可读元素
 - [ ] R27: 真机 QA + TestFlight(需用户 Apple 账号);未提交改动分批 commit(待用户指示)
 - [x] R28: 模式命名对齐参考 app——classic→moment(时刻卡=极简海报)、moment→bubble(气泡贴纸=拍立得+相机参数)、自创漂浮气泡模式改名 floating;视图文件同步改名(MomentCardView→BubbleStampView、原 BubbleStampView→FloatingBubblesView);旧 fpc.mode 值回退默认 moment
+- [x] R29: Vitreous Palette 琉璃色卡模式(参考 IMG_2547)——大圆角照片卡(无标题区)+ ultraThinMaterial 玻璃面板 2×3 色圆 + 等宽 hex 标签,点色圆即换画布背景;导出走平面填充;列表中排第二

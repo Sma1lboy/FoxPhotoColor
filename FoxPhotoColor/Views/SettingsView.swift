@@ -80,6 +80,10 @@ struct SettingsView: View {
                     title: "settings.mode.moment",
                     subtitle: "settings.mode.moment.desc")
             separator
+            modeRow(.vitreous, icon: "circle.hexagongrid",
+                    title: "settings.mode.vitreous",
+                    subtitle: "settings.mode.vitreous.desc")
+            separator
             modeRow(.bubble, icon: "photo.artframe",
                     title: "settings.mode.bubble",
                     subtitle: "settings.mode.bubble.desc")

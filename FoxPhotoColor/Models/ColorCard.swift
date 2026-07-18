@@ -66,6 +66,8 @@ struct NormalizedPoint: Codable, Equatable {
 enum CardMode: String, CaseIterable {
     /// The classic minimalist poster (the reference's "Moment Card").
     case moment
+    /// Frosted glass panel of the six extracted colors ("Vitreous Palette").
+    case vitreous
     /// Polaroid print with capture metadata (the reference's "Bubble Stamp").
     case bubble
     /// Our own: draggable palette bubbles over the full-bleed photo.

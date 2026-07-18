@@ -71,6 +71,8 @@ struct PosterView: View {
         switch mode {
         case .moment:
             CardView(card: card, image: image, screenSize: size)
+        case .vitreous:
+            VitreousPaletteView(card: card, image: image, flatChrome: true)
         case .bubble:
             BubbleStampView(card: card, image: image)
         case .floating:
