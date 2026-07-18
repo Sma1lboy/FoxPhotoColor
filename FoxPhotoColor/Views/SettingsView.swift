@@ -4,11 +4,13 @@ import SwiftUI
 // 深色 sheet、置顶居中标题、大写字距 section header、圆角 28 分组卡片、
 // 图标行 + 蓝色控件、版本页脚。
 struct SettingsView: View {
-    // ponytail: 预留偏好,先落 AppStorage,建卡/导出管线接入后即生效
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var store: CardStore
+    @State private var showClearConfirm = false
+
     @AppStorage("fpc.use24HourTime") private var use24HourTime = true
     @AppStorage("fpc.livePhotoEnabled") private var livePhotoEnabled = true
     @AppStorage("fpc.defaultExportAspect") private var defaultExportAspect = "full"
-    // 已接线的偏好
     @AppStorage("fpc.mode") private var modeRaw = CardMode.classic.rawValue
     @AppStorage("fpc.alwaysPoeticTitle") private var alwaysPoeticTitle = false
 
@@ -37,6 +39,7 @@ struct SettingsView: View {
                 modeSection
                 cardSection
                 exportSection
+                dataSection
                 tipsSection
                 developerSection
                 footer
@@ -55,6 +58,18 @@ struct SettingsView: View {
                 .background(Metrics.pageBackground)
         }
         .presentationDetents([.large])
+        .confirmationDialog("settings.data.clear.title",
+                            isPresented: $showClearConfirm,
+                            titleVisibility: .visible) {
+            Button("settings.data.clear.confirm", role: .destructive) {
+                Haptics.medium()
+                store.removeAll()
+                dismiss()
+            }
+            Button("action.cancel", role: .cancel) {}
+        } message: {
+            Text("settings.data.clear.message")
+        }
     }
 
     // MARK: - Sections
@@ -69,10 +84,17 @@ struct SettingsView: View {
                     title: "settings.mode.moment",
                     subtitle: "settings.mode.moment.desc")
             separator
-            row(icon: "sparkles",
-                title: "settings.mode.more",
-                subtitle: "settings.mode.more.desc",
-                dimmed: true) { EmptyView() }
+            modeRow(.bubble, icon: "bubbles.and.sparkles",
+                    title: "settings.mode.bubble",
+                    subtitle: "settings.mode.bubble.desc")
+            separator
+            modeRow(.spectrum, icon: "rectangle.portrait.inset.filled",
+                    title: "settings.mode.spectrum",
+                    subtitle: "settings.mode.spectrum.desc")
+            separator
+            modeRow(.journal, icon: "book.closed",
+                    title: "settings.mode.journal",
+                    subtitle: "settings.mode.journal.desc")
         }
     }
 
@@ -83,6 +105,9 @@ struct SettingsView: View {
             withAnimation(.spring(response: 0.3, dampingFraction: 1.0)) {
                 modeRaw = target.rawValue
             }
+            // Reference behavior: picking a mode returns you to the home page
+            // so the new style is immediately on screen.
+            dismiss()
         } label: {
             row(icon: icon, title: title, subtitle: subtitle) {
                 if modeRaw == target.rawValue {
@@ -101,14 +126,14 @@ struct SettingsView: View {
             separator
             row(icon: "clock",
                 title: "settings.card.timeformat",
-                subtitle: "settings.pref.pending") {
+                subtitle: nil) {
                 segmented(options: [(Text(verbatim: "12h"), false), (Text(verbatim: "24h"), true)],
                           selection: $use24HourTime)
             }
             separator
             row(icon: "livephoto",
                 title: "settings.card.livephoto",
-                subtitle: "settings.pref.pending") {
+                subtitle: nil) {
                 Toggle("", isOn: $livePhotoEnabled)
                     .labelsHidden()
                     .tint(Metrics.accent)
@@ -128,11 +153,33 @@ struct SettingsView: View {
         section(header: "settings.section.export") {
             row(icon: "aspectratio",
                 title: "settings.export.aspect",
-                subtitle: "settings.pref.pending") {
+                subtitle: nil) {
                 segmented(options: [(Text("settings.export.aspect.full"), "full"),
                                     (Text(verbatim: "4:5"), "4:5")],
                           selection: $defaultExportAspect)
             }
+        }
+    }
+
+    private var dataSection: some View {
+        section(header: "settings.section.data") {
+            Button {
+                showClearConfirm = true
+            } label: {
+                HStack(spacing: Metrics.iconGap) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 19, weight: .light))
+                        .foregroundStyle(.red)
+                        .frame(width: Metrics.iconWidth)
+                    Text("settings.data.clear")
+                        .font(.system(size: 17))
+                        .foregroundStyle(.red)
+                    Spacer(minLength: 12)
+                }
+                .padding(.horizontal, Metrics.rowInset)
+                .padding(.vertical, 18)
+            }
+            .buttonStyle(.plain)
         }
     }
 
