@@ -98,6 +98,12 @@ struct HomeView: View {
             // jumps to a card; FPC_RECOLOR=<card>:<swatch> exercises the real
             // recolor path so screenshots can verify it.
             let env = ProcessInfo.processInfo.environment
+            // FPC_IMPORT=<path>: run the real import pipeline on an image file
+            // (QA: PhotosPicker can't be tapped headlessly).
+            if let path = env["FPC_IMPORT"],
+               let data = FileManager.default.contents(atPath: path) {
+                Task { await importData(data) }
+            }
             if let raw = env["FPC_SELECT"],
                let idx = Int(raw), store.cards.indices.contains(idx) {
                 selection = store.cards[idx].id
@@ -212,43 +218,52 @@ struct HomeView: View {
                 isImporting = false
                 pickerItem = nil
             }
-            guard let data = try? await item.loadTransferable(type: Data.self),
-                  let image = UIImage(data: data) else {
+            guard let data = try? await item.loadTransferable(type: Data.self) else {
                 // Realistic path: iCloud-offloaded photo picked while offline.
                 store.errorMessage = String(localized: "error.import_failed")
                 return
             }
-            let (palette, metadata) = await Task.detached(priority: .userInitiated) {
-                (PaletteExtractor.extract(from: image), PhotoMetadataParser.parse(from: data))
-            }.value
-            let captureDate = metadata.creationDate ?? .now
-            let timeText = captureDate.formatted(date: .omitted, time: .shortened)
-            let title = String(localized: "card.default_title")
-            var newCard: ColorCard?
-            withAnimation(uiAnimation) {
-                if let card = store.add(image: image, originalData: data,
-                                        title: title, timeText: timeText, palette: palette) {
-                    selection = card.id
-                    newCard = card
-                }
-            }
-            if newCard != nil {
-                Haptics.success()
-            }
-            // The card is on screen — release the spinner before the slow tails
-            // (Live Photo video fetch, geocode) instead of at closure exit.
+            let created = await importData(data)
             isImporting = false
             pickerItem = nil
             // Live Photos carry a paired video; fetch it AFTER the card is
             // visible (it can be an iCloud download) and attach when it lands.
-            if let created = newCard,
+            if let created,
                let livePhoto = try? await item.loadTransferable(type: PHLivePhoto.self) {
                 store.attachLivePhoto(livePhoto, to: created)
             }
-            // Geocoded place name pops in when the lookup lands. Re-fetch the
-            // live card and touch only the title, so a rename or recolor done
-            // while the lookup was in flight is never clobbered.
-            if let created = newCard, let coordinate = metadata.coordinate,
+        }
+    }
+
+    /// The shared import pipeline: palette + EXIF off-main, card insert,
+    /// then async geocode backfill. Returns the created card.
+    @discardableResult
+    private func importData(_ data: Data) async -> ColorCard? {
+        guard let image = UIImage(data: data) else {
+            store.errorMessage = String(localized: "error.import_failed")
+            return nil
+        }
+        let (palette, metadata) = await Task.detached(priority: .userInitiated) {
+            (PaletteExtractor.extract(from: image), PhotoMetadataParser.parse(from: data))
+        }.value
+        let captureDate = metadata.creationDate ?? .now
+        let timeText = captureDate.formatted(date: .omitted, time: .shortened)
+        let title = String(localized: "card.default_title")
+        var newCard: ColorCard?
+        withAnimation(uiAnimation) {
+            if let card = store.add(image: image, originalData: data,
+                                    title: title, timeText: timeText, palette: palette) {
+                selection = card.id
+                newCard = card
+            }
+        }
+        guard let created = newCard else { return nil }
+        Haptics.success()
+        // Geocoded place name pops in when the lookup lands. Re-fetch the
+        // live card and touch only the title, so a rename or recolor done
+        // while the lookup was in flight is never clobbered.
+        Task {
+            if let coordinate = metadata.coordinate,
                let place = await PhotoMetadataParser.placeName(for: coordinate),
                var fresh = store.card(id: created.id), fresh.title == title {
                 fresh.title = place
@@ -257,6 +272,7 @@ struct HomeView: View {
                 }
             }
         }
+        return created
     }
 
     private func export(_ card: ColorCard) {

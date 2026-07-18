@@ -85,8 +85,8 @@ struct ExportOptionsView: View {
         GeometryReader { geo in
             let size = ratio.size
             let scale = min(geo.size.width / size.width, geo.size.height / size.height)
-            PosterView(card: card, image: image, showsPaletteStrip: showPaletteStrip)
-                .frame(width: size.width, height: size.height)
+            PosterView(card: card, image: image, size: size,
+                       showsPaletteStrip: showPaletteStrip)
                 .clipShape(RoundedRectangle(cornerRadius: 10 / scale))
                 .scaleEffect(scale)
                 .frame(width: geo.size.width, height: geo.size.height)

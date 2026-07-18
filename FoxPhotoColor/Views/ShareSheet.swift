@@ -12,45 +12,41 @@ struct ShareSheet: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
-/// The exported poster is the CARD itself, full-bleed (not the whole screen):
-/// title zone on the card color, photo slot with aspect-fill crop, and a
-/// color strip at the bottom — same composition as the on-screen card.
+/// The exported poster is the whole displayed screen, wallpaper-style (per
+/// the reference's downloads): canvas wash, brand top bar with glass buttons,
+/// and the card exactly as shown. CardView's frozen-size layout means passing
+/// the poster size reproduces the on-screen composition at any export ratio.
 struct PosterView: View {
     let card: ColorCard
     let image: UIImage
+    let size: CGSize
     var showsPaletteStrip = false
 
     var body: some View {
-        GeometryReader { geo in
-            VStack(spacing: 0) {
-                VStack(spacing: 13) {
-                    Text(card.title.uppercased())
-                        .font(.system(size: 15, weight: .heavy))
-                        .tracking(3.2)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                        .opacity(0.92)
-                    Text(card.timeText.uppercased())
-                        .font(.system(size: 9, weight: .semibold))
-                        .tracking(2.2)
-                        .opacity(0.85)
-                }
-                .foregroundStyle(card.accent.color)
-                .padding(.horizontal, 24)
-                .frame(maxWidth: .infinity)
-                .frame(height: geo.size.height * 0.33)
-                Spacer(minLength: 0)
+        ZStack {
+            CanvasBackground(color: card.background)
 
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: geo.size.width, height: geo.size.height * 0.67)
-                    .clipped()
+            VStack {
+                HStack(spacing: 9) {
+                    Text(verbatim: "FoxPhotoColor")
+                        .font(.system(size: 21, weight: .bold))
+                        .foregroundStyle(chromeColor)
+                    Spacer()
+                    posterButton("plus")
+                    posterButton("arrow.down.to.line")
+                    posterButton("gearshape")
+                }
+                .padding(.leading, 16)
+                .padding(.trailing, 15)
+                .padding(.top, 66)
+                Spacer()
             }
-            .frame(width: geo.size.width, height: geo.size.height)
-            .background(card.background.color)
-            .overlay(alignment: .bottom) {
-                if showsPaletteStrip, card.palette.count > 1 {
+
+            CardView(card: card, image: image, screenSize: size)
+
+            if showsPaletteStrip, card.palette.count > 1 {
+                VStack {
+                    Spacer()
                     HStack(spacing: 5) {
                         ForEach(Array(card.palette.prefix(6).enumerated()), id: \.offset) { _, swatch in
                             RoundedRectangle(cornerRadius: 3)
@@ -59,10 +55,31 @@ struct PosterView: View {
                         }
                     }
                     .padding(.horizontal, 24)
-                    .padding(.bottom, geo.size.height * 0.045)
+                    .padding(.bottom, size.height * 0.045)
                 }
             }
         }
+        .frame(width: size.width, height: size.height)
+    }
+
+    private var chromeIsDark: Bool { card.background.isLight }
+    private var chromeColor: Color { chromeIsDark ? .black.opacity(0.75) : .white }
+
+    /// ImageRenderer can't rasterize system materials, so the poster's buttons
+    /// use a flat translucent fill with the same top-lit rim as GlassCircle.
+    private func posterButton(_ systemName: String) -> some View {
+        let rim: Color = chromeIsDark ? .black : .white
+        return Image(systemName: systemName)
+            .font(.system(size: 19, weight: .light))
+            .foregroundStyle(chromeColor)
+            .frame(width: 46, height: 46)
+            .background(Circle().fill(rim.opacity(0.10)))
+            .overlay(
+                Circle().strokeBorder(
+                    LinearGradient(colors: [rim.opacity(0.55), rim.opacity(0.08)],
+                                   startPoint: .top, endPoint: .bottom),
+                    lineWidth: 1)
+            )
     }
 }
 
@@ -74,8 +91,8 @@ enum CardPosterRenderer {
                        ratio: PosterRatio = .phone,
                        showPaletteStrip: Bool = false) -> UIImage {
         let size = ratio.size
-        let poster = PosterView(card: card, image: image, showsPaletteStrip: showPaletteStrip)
-            .frame(width: size.width, height: size.height)
+        let poster = PosterView(card: card, image: image, size: size,
+                                showsPaletteStrip: showPaletteStrip)
 
         let renderer = ImageRenderer(content: poster)
         renderer.scale = 3
