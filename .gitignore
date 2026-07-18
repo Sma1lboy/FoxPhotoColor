@@ -5,3 +5,5 @@ DerivedData/
 xcuserdata/
 .DS_Store
 build-release/
+build-26/
+build-device/
