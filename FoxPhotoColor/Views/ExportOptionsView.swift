@@ -28,9 +28,14 @@ struct ExportOptionsView: View {
     let image: UIImage
 
     @Environment(\.dismiss) private var dismiss
-    @State private var ratio: PosterRatio = .phone
+    @AppStorage("fpc.mode") private var modeRaw = CardMode.classic.rawValue
+    // Initial ratio honors the settings default ("full" | "4:5").
+    @State private var ratio: PosterRatio =
+        UserDefaults.standard.string(forKey: "fpc.defaultExportAspect") == "4:5" ? .social : .phone
     @State private var showPaletteStrip = false
     @State private var shareItem: ShareImage?
+
+    private var mode: CardMode { CardMode(rawValue: modeRaw) ?? .classic }
 
     var body: some View {
         NavigationStack {
@@ -53,7 +58,8 @@ struct ExportOptionsView: View {
                     let poster = CardPosterRenderer.render(card: card,
                                                           image: image,
                                                           ratio: ratio,
-                                                          showPaletteStrip: showPaletteStrip)
+                                                          showPaletteStrip: showPaletteStrip,
+                                                          mode: mode)
                     shareItem = ShareImage(image: poster)
                 } label: {
                     Text("action.share")
@@ -86,7 +92,8 @@ struct ExportOptionsView: View {
             let size = ratio.size
             let scale = min(geo.size.width / size.width, geo.size.height / size.height)
             PosterView(card: card, image: image, size: size,
-                       showsPaletteStrip: showPaletteStrip)
+                       showsPaletteStrip: showPaletteStrip,
+                       mode: mode)
                 .clipShape(RoundedRectangle(cornerRadius: 10 / scale))
                 .scaleEffect(scale)
                 .frame(width: geo.size.width, height: geo.size.height)

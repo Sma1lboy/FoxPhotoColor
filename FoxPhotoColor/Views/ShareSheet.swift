@@ -21,11 +21,18 @@ struct PosterView: View {
     let image: UIImage
     let size: CGSize
     var showsPaletteStrip = false
+    /// Poster style — mirrors the browser's CardMode so the export is
+    /// what-you-see-is-what-you-share.
+    var mode: CardMode = .classic
 
     var body: some View {
         ZStack {
             CanvasBackground(color: card.background)
 
+            modeContent
+
+            // Chrome sits ABOVE the mode content so full-bleed styles
+            // (bubble, spectrum) still carry the brand mark.
             VStack {
                 HStack(spacing: 9) {
                     Text(verbatim: "FoxPhotoColor")
@@ -41,8 +48,6 @@ struct PosterView: View {
                 .padding(.top, 66)
                 Spacer()
             }
-
-            CardView(card: card, image: image, screenSize: size)
 
             if showsPaletteStrip, card.palette.count > 1 {
                 VStack {
@@ -60,6 +65,21 @@ struct PosterView: View {
             }
         }
         .frame(width: size.width, height: size.height)
+    }
+
+    @ViewBuilder private var modeContent: some View {
+        switch mode {
+        case .classic:
+            CardView(card: card, image: image, screenSize: size)
+        case .moment:
+            MomentCardView(card: card, image: image)
+        case .bubble:
+            BubbleStampView(card: card, image: image, flatChrome: true)
+        case .spectrum:
+            SpectrumWallpaperView(card: card)
+        case .journal:
+            MagicJournalView(card: card, image: image)
+        }
     }
 
     private var chromeIsDark: Bool { card.background.isLight }
@@ -89,10 +109,12 @@ enum CardPosterRenderer {
     static func render(card: ColorCard,
                        image: UIImage,
                        ratio: PosterRatio = .phone,
-                       showPaletteStrip: Bool = false) -> UIImage {
+                       showPaletteStrip: Bool = false,
+                       mode: CardMode = .classic) -> UIImage {
         let size = ratio.size
         let poster = PosterView(card: card, image: image, size: size,
-                                showsPaletteStrip: showPaletteStrip)
+                                showsPaletteStrip: showPaletteStrip,
+                                mode: mode)
 
         let renderer = ImageRenderer(content: poster)
         renderer.scale = 3
