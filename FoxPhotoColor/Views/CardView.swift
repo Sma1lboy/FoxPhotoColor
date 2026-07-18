@@ -42,17 +42,14 @@ struct CardView: View {
         GeometryReader { geo in
             // Reference proportions (measured off IMG_2531/2532): a fixed-
             // footprint card — top at 17% of the screen, 15pt side and bottom
-            // margins. Inside: a 24.9%-of-screen title zone, then the photo
-            // full-width at natural aspect with its own soft corners, then the
-            // card color continues to the card's bottom edge. Photos taller
-            // than the remaining space are center-cropped (aspect fill).
+            // margins. Inside, a FIXED composition: 24.9%-of-screen title
+            // zone, a 31.9%-of-screen photo slot (photos aspect-fill and
+            // center-crop into it), then card color to the card's bottom edge.
             let cardWidth = geo.size.width - 30
             let cardTop = geo.size.height * 0.17
             let cardHeight = geo.size.height - cardTop - 15
             let titleZone = geo.size.height * 0.249
-            let photoHeight = photoHeight(cardWidth: cardWidth,
-                                          minHeight: geo.size.height * 0.22,
-                                          maxHeight: cardHeight - titleZone)
+            let photoHeight = geo.size.height * 0.319
 
             VStack(spacing: 0) {
                 Spacer().frame(height: cardTop)
@@ -61,7 +58,11 @@ struct CardView: View {
                     titleBlock
                         .frame(width: cardWidth, height: titleZone)
                     photoView(width: cardWidth, height: photoHeight)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        // Reference closeup: the photo's top corners are
+                        // square; only the bottom corners are rounded.
+                        .clipShape(UnevenRoundedRectangle(
+                            bottomLeadingRadius: 12, bottomTrailingRadius: 12,
+                            style: .continuous))
                     Spacer(minLength: 0)
                 }
                 .frame(width: cardWidth, height: cardHeight)
@@ -164,13 +165,6 @@ struct CardView: View {
         }
     }
 
-    /// Photo fills the card's width at its natural aspect ratio, clamped so
-    /// panoramas and portraits both keep a poster-like card.
-    private func photoHeight(cardWidth: CGFloat, minHeight: CGFloat, maxHeight: CGFloat) -> CGFloat {
-        guard let image, image.size.width > 0 else { return (minHeight + maxHeight) / 2 }
-        let natural = cardWidth * image.size.height / image.size.width
-        return min(max(natural, minHeight), maxHeight)
-    }
 }
 
 /// PHLivePhotoView wrapper. Built-in long-press playback stays; bumping

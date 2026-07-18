@@ -55,21 +55,79 @@ struct EmptyStateView: View {
         }
     }
 
-    /// Stacked soft ellipses — the app's logo mark: a pale leaf behind, a deep
-    /// green one in front, offset down (matching the reference mark).
+    /// The app's logo mark: a minimal geometric fox head (kin to the codefox
+    /// fox) — two ears and a muzzle cut from a rounded face, in the brand's
+    /// warm orange over a soft cream chest.
     private var logoMark: some View {
-        ZStack {
-            Ellipse()
-                .fill(Color(red: 0.85, green: 0.89, blue: 0.70))
-                .frame(width: 52, height: 66)
-                .offset(y: -12)
-            Ellipse()
-                .fill(Color(red: 0.24, green: 0.32, blue: 0.20))
-                .frame(width: 52, height: 66)
-                .offset(y: 12)
-                .opacity(0.9)
+        FoxMark()
+            .frame(width: 76, height: 68)
+    }
+}
+
+/// Minimal geometric fox head, drawn in code so it scales and recolors freely.
+/// Kin to the codefox fox: tall ears, soft jaw, cream muzzle.
+struct FoxMark: View {
+    var body: some View {
+        GeometryReader { geo in
+            let w = geo.size.width, h = geo.size.height
+            ZStack {
+                // Ears + head silhouette in the brand orange.
+                Path { p in
+                    // Left ear
+                    p.move(to: CGPoint(x: w * 0.08, y: h * 0.02))
+                    p.addLine(to: CGPoint(x: w * 0.34, y: h * 0.30))
+                    p.addLine(to: CGPoint(x: w * 0.10, y: h * 0.42))
+                    p.closeSubpath()
+                    // Right ear
+                    p.move(to: CGPoint(x: w * 0.92, y: h * 0.02))
+                    p.addLine(to: CGPoint(x: w * 0.66, y: h * 0.30))
+                    p.addLine(to: CGPoint(x: w * 0.90, y: h * 0.42))
+                    p.closeSubpath()
+                }
+                .fill(Color(red: 0.89, green: 0.36, blue: 0.16))
+
+                // Face: rounded wedge tapering to the muzzle.
+                Path { p in
+                    p.move(to: CGPoint(x: w * 0.06, y: h * 0.30))
+                    p.addQuadCurve(to: CGPoint(x: w * 0.94, y: h * 0.30),
+                                   control: CGPoint(x: w * 0.5, y: h * 0.14))
+                    p.addQuadCurve(to: CGPoint(x: w * 0.5, y: h * 0.98),
+                                   control: CGPoint(x: w * 0.96, y: h * 0.78))
+                    p.addQuadCurve(to: CGPoint(x: w * 0.06, y: h * 0.30),
+                                   control: CGPoint(x: w * 0.04, y: h * 0.78))
+                    p.closeSubpath()
+                }
+                .fill(Color(red: 0.89, green: 0.36, blue: 0.16))
+
+                // Cream muzzle: soft triangle at the chin.
+                Path { p in
+                    p.move(to: CGPoint(x: w * 0.30, y: h * 0.62))
+                    p.addQuadCurve(to: CGPoint(x: w * 0.70, y: h * 0.62),
+                                   control: CGPoint(x: w * 0.5, y: h * 0.52))
+                    p.addQuadCurve(to: CGPoint(x: w * 0.5, y: h * 0.98),
+                                   control: CGPoint(x: w * 0.72, y: h * 0.88))
+                    p.addQuadCurve(to: CGPoint(x: w * 0.30, y: h * 0.62),
+                                   control: CGPoint(x: w * 0.28, y: h * 0.88))
+                    p.closeSubpath()
+                }
+                .fill(Color(red: 0.98, green: 0.94, blue: 0.86))
+
+                // Eyes: two dark dots.
+                Circle()
+                    .fill(Color(red: 0.13, green: 0.12, blue: 0.18))
+                    .frame(width: w * 0.075, height: w * 0.075)
+                    .position(x: w * 0.32, y: h * 0.50)
+                Circle()
+                    .fill(Color(red: 0.13, green: 0.12, blue: 0.18))
+                    .frame(width: w * 0.075, height: w * 0.075)
+                    .position(x: w * 0.68, y: h * 0.50)
+                // Nose.
+                Circle()
+                    .fill(Color(red: 0.13, green: 0.12, blue: 0.18))
+                    .frame(width: w * 0.09, height: w * 0.09)
+                    .position(x: w * 0.5, y: h * 0.80)
+            }
         }
-        .frame(width: 64, height: 96)
     }
 }
 
