@@ -7,6 +7,7 @@ import CoreLocation
 struct PhotoMetadata {
     var creationDate: Date?
     var coordinate: CLLocationCoordinate2D?
+    var camera: CameraInfo?
 }
 
 enum PhotoMetadataParser {
@@ -31,29 +32,47 @@ enum PhotoMetadataParser {
         }
 
         var coordinate: CLLocationCoordinate2D?
-        if let gps = props[kCGImagePropertyGPSDictionary] as? [CFString: Any],
-           let lat = gps[kCGImagePropertyGPSLatitude] as? Double,
-           let lon = gps[kCGImagePropertyGPSLongitude] as? Double {
-            let latRef = gps[kCGImagePropertyGPSLatitudeRef] as? String ?? "N"
-            let lonRef = gps[kCGImagePropertyGPSLongitudeRef] as? String ?? "E"
-            coordinate = CLLocationCoordinate2D(latitude: latRef == "S" ? -lat : lat,
-                                                longitude: lonRef == "W" ? -lon : lon)
+        var camera = CameraInfo()
+        if let gps = props[kCGImagePropertyGPSDictionary] as? [CFString: Any] {
+            if let lat = gps[kCGImagePropertyGPSLatitude] as? Double,
+               let lon = gps[kCGImagePropertyGPSLongitude] as? Double {
+                let latRef = gps[kCGImagePropertyGPSLatitudeRef] as? String ?? "N"
+                let lonRef = gps[kCGImagePropertyGPSLongitudeRef] as? String ?? "E"
+                coordinate = CLLocationCoordinate2D(latitude: latRef == "S" ? -lat : lat,
+                                                    longitude: lonRef == "W" ? -lon : lon)
+            }
+            if let alt = gps[kCGImagePropertyGPSAltitude] as? Double {
+                let belowSea = (gps[kCGImagePropertyGPSAltitudeRef] as? Int) == 1
+                camera.altitude = belowSea ? -alt : alt
+            }
+            camera.headingDegrees = gps[kCGImagePropertyGPSImgDirection] as? Double
+        }
+        if let tiff = props[kCGImagePropertyTIFFDictionary] as? [CFString: Any] {
+            camera.model = tiff[kCGImagePropertyTIFFModel] as? String
+        }
+        if let exif = props[kCGImagePropertyExifDictionary] as? [CFString: Any] {
+            camera.fNumber = exif[kCGImagePropertyExifFNumber] as? Double
+            camera.exposureSeconds = exif[kCGImagePropertyExifExposureTime] as? Double
+            camera.iso = (exif[kCGImagePropertyExifISOSpeedRatings] as? [Int])?.first
         }
 
-        return PhotoMetadata(creationDate: date, coordinate: coordinate)
+        return PhotoMetadata(creationDate: date, coordinate: coordinate,
+                             camera: camera.isEmpty ? nil : camera)
     }
 
-    /// Reverse-geocode to a poster-worthy place name, most specific first
-    /// (point of interest → neighborhood → city → region → country).
+    /// Two-level place name like the reference poster: "San Francisco Bay
+    /// Trail · Richmond" — the most specific name, a middle dot, then the
+    /// city. Falls back to a single level when only one is known.
     static func placeName(for coordinate: CLLocationCoordinate2D) async -> String? {
         let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
         guard let placemark = try? await CLGeocoder().reverseGeocodeLocation(location).first else {
             return nil
         }
-        return placemark.areasOfInterest?.first
-            ?? placemark.subLocality
-            ?? placemark.locality
-            ?? placemark.administrativeArea
-            ?? placemark.country
+        let specific = placemark.areasOfInterest?.first ?? placemark.subLocality
+        let city = placemark.locality ?? placemark.administrativeArea
+        if let specific, let city, specific != city {
+            return "\(specific) · \(city)"
+        }
+        return specific ?? city ?? placemark.country
     }
 }
