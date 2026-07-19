@@ -8,11 +8,14 @@ import SwiftUI
 
 extension View {
     /// Liquid Glass anchored in `shape`, or ultra-thin material below iOS 26.
+    /// `clear` picks the high-transparency variant — the right choice over
+    /// photos/media, where .regular reads as plain frosted material.
     @ViewBuilder
-    func fpcGlass(in shape: some Shape, interactive: Bool = false) -> some View {
+    func fpcGlass(in shape: some Shape, interactive: Bool = false, clear: Bool = false) -> some View {
         #if compiler(>=6.2)
         if #available(iOS 26.0, *) {
-            glassEffect(interactive ? .regular.interactive() : .regular, in: shape)
+            let base: Glass = clear ? .clear : .regular
+            glassEffect(interactive ? base.interactive() : base, in: shape)
         } else {
             background(.ultraThinMaterial, in: AnyShape(shape))
         }

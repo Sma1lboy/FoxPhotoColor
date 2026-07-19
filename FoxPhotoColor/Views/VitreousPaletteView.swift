@@ -81,7 +81,7 @@ private struct GlassPanel: ViewModifier {
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
                     .fill(Color.white.opacity(0.28)))
         } else {
-            content.fpcGlass(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            content.fpcGlass(in: RoundedRectangle(cornerRadius: 24, style: .continuous), clear: true)
         }
     }
 }
