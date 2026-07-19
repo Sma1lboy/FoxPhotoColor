@@ -22,6 +22,12 @@ struct HomeView: View {
 
     private var mode: CardMode { CardMode(rawValue: modeRaw) ?? .moment }
 
+    /// A card keeps the mode it was created in; legacy cards (nil) follow
+    /// the global setting.
+    private func effectiveMode(_ card: ColorCard) -> CardMode {
+        card.mode ?? mode
+    }
+
     /// iPad: the poster canvas caps at 560pt and centers, keeping the phone
     /// proportions instead of stretching. Phones pass through unchanged.
     private static let maxCanvasWidth: CGFloat = 560
@@ -73,7 +79,7 @@ struct HomeView: View {
                     ForEach(store.cards) { card in
                         let isCurrent = (selection ?? store.cards.first?.id) == card.id
                         Group {
-                            switch mode {
+                            switch effectiveMode(card) {
                             case .vitreous:
                                 VitreousPaletteView(card: card,
                                                     image: store.image(for: card),
@@ -363,7 +369,8 @@ struct HomeView: View {
             if let card = store.add(image: image, originalData: data,
                                     title: title, timeText: timeText, palette: palette,
                                     camera: metadata.camera,
-                                    captureDate: captureDate) {
+                                    captureDate: captureDate,
+                                    mode: mode) {
                 selection = card.id
                 newCard = card
             }
@@ -430,7 +437,7 @@ struct HomeView: View {
             return
         }
         let poster = CardPosterRenderer.render(card: card, image: image,
-                                               ratio: .phone, mode: mode)
+                                               ratio: .phone, mode: effectiveMode(card))
         Haptics.light()
         shareImage = ShareImage(image: poster)
     }
@@ -448,13 +455,13 @@ struct HomeView: View {
                 if dragAxis == .undetermined {
                     // A drag starting on a bubble belongs to the bubble —
                     // neither dismiss nor paging should fight it.
-                    if mode == .floating,
+                    if effectiveMode(card) == .floating,
                        FloatingBubblesView.layout(for: card, in: canvasSize)
                            .contains(where: { inScreenSpace($0.hitFrame).contains(value.startLocation) }) {
                         dragAxis = .inert
                     } else if abs(value.translation.width) > abs(value.translation.height) {
                         dragAxis = .horizontal
-                    } else if mode == .moment,
+                    } else if effectiveMode(card) == .moment,
                               inScreenSpace(CardView.photoRect(in: canvasSize))
                                 .contains(value.startLocation),
                               CardView.panOverflow(image: store.image(for: card),

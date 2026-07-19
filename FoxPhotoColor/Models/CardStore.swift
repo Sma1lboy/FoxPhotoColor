@@ -42,7 +42,8 @@ final class CardStore: ObservableObject {
              originalData: Data? = nil,
              title: String, timeText: String, palette: ExtractedPalette,
              camera: CameraInfo? = nil,
-             captureDate: Date? = nil) -> ColorCard? {
+             captureDate: Date? = nil,
+             mode: CardMode? = nil) -> ColorCard? {
         // Persist the ORIGINAL bytes when available: re-encoding via jpegData
         // strips EXIF and the Apple content identifier that pairs a Live
         // Photo's still with its video — without it, post-relaunch rebuild fails.
@@ -72,7 +73,8 @@ final class CardStore: ObservableObject {
                              accent: palette.accent,
                              palette: palette.swatches,
                              camera: camera,
-                             captureDate: captureDate)
+                             captureDate: captureDate,
+                             mode: mode)
         if let display = Self.downsample(data: data) {
             imageCache.setObject(display, forKey: card.id as NSUUID)
         }

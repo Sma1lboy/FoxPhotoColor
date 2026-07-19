@@ -63,7 +63,7 @@ struct NormalizedPoint: Codable, Equatable {
 
 /// Poster style for the main card browser. Raw values are persisted in
 /// UserDefaults ("fpc.mode") — don't rename cases.
-enum CardMode: String, CaseIterable {
+enum CardMode: String, CaseIterable, Codable {
     /// The classic minimalist poster (the reference's "Moment Card").
     case moment
     /// Frosted glass panel of the six extracted colors ("Vitreous Palette").
@@ -102,6 +102,10 @@ struct ColorCard: Identifiable, Codable, Equatable {
     /// User-dragged Bubble Stamp positions, keyed by palette index, in unit
     /// space. Missing entries fall back to the deterministic scatter.
     var bubblePositions: [Int: NormalizedPoint]?
+    /// The poster mode active when this card was created — the card keeps
+    /// that identity while browsing. nil (legacy cards) follows the global
+    /// mode setting.
+    var mode: CardMode?
 
     init(id: UUID = UUID(),
          title: String,
@@ -113,7 +117,8 @@ struct ColorCard: Identifiable, Codable, Equatable {
          accent: RGBAColor,
          palette: [RGBAColor],
          camera: CameraInfo? = nil,
-         captureDate: Date? = nil) {
+         captureDate: Date? = nil,
+         mode: CardMode? = nil) {
         self.id = id
         self.title = title
         self.timeText = timeText
@@ -125,6 +130,7 @@ struct ColorCard: Identifiable, Codable, Equatable {
         self.palette = palette
         self.camera = camera
         self.captureDate = captureDate
+        self.mode = mode
     }
 }
 
