@@ -17,6 +17,7 @@ struct HomeView: View {
     @State private var panPreview: CGFloat = 0
 
     @State private var flippedCards: Set<UUID> = []
+    @State private var lastSelectionByMode: [CardMode: UUID] = [:]
 
     @AppStorage("fpc.mode") private var modeRaw = CardMode.moment.rawValue
     @AppStorage("fpc.alwaysPoeticTitle") private var alwaysPoeticTitle = false
@@ -239,6 +240,21 @@ struct HomeView: View {
                 flip(card)
             }
             backfillMissingTitles()
+        }
+        .onChange(of: selection) { _, new in
+            if let new, let card = store.card(id: new) {
+                lastSelectionByMode[effectiveMode(card)] = new
+            }
+        }
+        // Settings mode switch re-enters home ON that mode: jump to the last
+        // card browsed in it, else its newest card.
+        .onChange(of: modeRaw) { _, raw in
+            guard let newMode = CardMode(rawValue: raw) else { return }
+            let target = lastSelectionByMode[newMode]
+                ?? store.cards.first(where: { effectiveMode($0) == newMode })?.id
+            if let target, target != selection {
+                withAnimation(uiAnimation) { selection = target }
+            }
         }
         .onChange(of: pickerItem) { _, newItem in
             guard let newItem else { return }
