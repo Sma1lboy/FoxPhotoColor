@@ -70,3 +70,4 @@ scripts/harness.sh all --seed     # build+run+capture 一条龙
 - [ ] R27: 真机 QA + TestFlight(需用户 Apple 账号);未提交改动分批 commit(待用户指示)
 - [x] R28: 模式命名对齐参考 app——classic→moment(时刻卡=极简海报)、moment→bubble(气泡贴纸=拍立得+相机参数)、自创漂浮气泡模式改名 floating;视图文件同步改名(MomentCardView→BubbleStampView、原 BubbleStampView→FloatingBubblesView);旧 fpc.mode 值回退默认 moment
 - [x] R29: Vitreous Palette 琉璃色卡模式(参考 IMG_2547)——大圆角照片卡(无标题区)+ ultraThinMaterial 玻璃面板 2×3 色圆 + 等宽 hex 标签,点色圆即换画布背景;导出走平面填充;列表中排第二
+- [x] R30: Liquid Glass(fpcGlass 双门控:compiler>=6.2 + iOS 26 available;顶栏钮 .regular.interactive、Vitreous 面板 .clear 高透变体、Floating 章 .regular;Xcode 26.4 + iOS 26.4 sim 验证)+ per-card 模式(建卡盖章 card.mode,浏览/导出/手势用 effectiveMode,老卡跟随全局)。真机链:Xcode 26.4 + team 68562FABX7 + 无 App Group entitlements 覆盖(CLI 无法补 App ID 能力,widget 共享待 Xcode GUI 配)
