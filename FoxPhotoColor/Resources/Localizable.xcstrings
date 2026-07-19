@@ -129,6 +129,38 @@
         }
       }
     },
+    "back.copy.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to copy the color value"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点按复制色值"
+          }
+        }
+      }
+    },
+    "back.story.loading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listening to this photo’s colors…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在聆听这张照片的色彩……"
+          }
+        }
+      }
+    },
     "card.default_title": {
       "localizations": {
         "en": {

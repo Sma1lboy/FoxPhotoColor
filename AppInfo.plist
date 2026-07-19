@@ -4,6 +4,12 @@
 <dict>
 	<!-- Widget 深链:foxphotocolor://card/<uuid>。其余键仍由
 	     GENERATE_INFOPLIST_FILE + INFOPLIST_KEY_* 生成合并。 -->
+	<!-- AI 标题走本地/局域网 HTTP 端点(CPA);iOS 26 起 loopback 明文也需豁免 -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

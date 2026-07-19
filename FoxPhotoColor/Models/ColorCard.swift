@@ -106,6 +106,9 @@ struct ColorCard: Identifiable, Codable, Equatable {
     /// that identity while browsing. nil (legacy cards) follows the global
     /// mode setting.
     var mode: CardMode?
+    /// One-line AI "color story" shown on the card's back — generated lazily
+    /// the first time the card is flipped, then persisted.
+    var story: String?
 
     init(id: UUID = UUID(),
          title: String,

@@ -16,6 +16,8 @@ struct HomeView: View {
     @State private var dragAxis: DragAxis = .undetermined
     @State private var panPreview: CGFloat = 0
 
+    @State private var flippedCards: Set<UUID> = []
+
     @AppStorage("fpc.mode") private var modeRaw = CardMode.moment.rawValue
     @AppStorage("fpc.alwaysPoeticTitle") private var alwaysPoeticTitle = false
     @AppStorage("fpc.livePhotoEnabled") private var livePhotoEnabled = true
@@ -78,7 +80,10 @@ struct HomeView: View {
                 TabView(selection: $selection) {
                     ForEach(store.cards) { card in
                         let isCurrent = (selection ?? store.cards.first?.id) == card.id
+                        let isFlipped = flippedCards.contains(card.id)
                         Group {
+                        ZStack {
+                            Group {
                             switch effectiveMode(card) {
                             case .vitreous:
                                 VitreousPaletteView(card: card,
@@ -115,6 +120,15 @@ struct HomeView: View {
                                          onExport: { export(card) },
                                          onDelete: { deleteCard(card) })
                             }
+                            }
+                            .opacity(isFlipped ? 0 : 1)
+                            CardBackView(card: card, story: card.story)
+                                .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                                .opacity(isFlipped ? 1 : 0)
+                        }
+                        // Double-tap flips to the card's color dossier and back.
+                        .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
+                        .highPriorityGesture(TapGesture(count: 2).onEnded { flip(card) })
                         }
                             // Reference proportions are fractions of the full
                             // screen — let each page's geometry span it. On
@@ -220,6 +234,9 @@ struct HomeView: View {
                     moveBubble(store.cards[cardIdx], index: idx,
                                to: NormalizedPoint(x: x, y: y))
                 }
+            }
+            if env["FPC_FLIP"] == "1", let card = store.cards.first {
+                flip(card)
             }
             backfillMissingTitles()
         }
@@ -417,6 +434,29 @@ struct HomeView: View {
                     }
                 }
             }
+        }
+    }
+
+    /// Flip to the back; generate the AI color story once and persist it.
+    private func flip(_ card: ColorCard) {
+        Haptics.light()
+        withAnimation(reduceMotion ? .easeInOut(duration: 0.2)
+                                   : .spring(response: 0.5, dampingFraction: 0.85)) {
+            if flippedCards.contains(card.id) {
+                flippedCards.remove(card.id)
+            } else {
+                flippedCards.insert(card.id)
+            }
+        }
+        guard card.story == nil, flippedCards.contains(card.id) else { return }
+        Task {
+            guard let image = store.image(for: card),
+                  let story = await AITitle.colorStory(
+                      for: image,
+                      palette: card.palette.prefix(6).map(\.hexString)),
+                  var fresh = store.card(id: card.id), fresh.story == nil else { return }
+            fresh.story = story
+            store.update(fresh)
         }
     }
 
